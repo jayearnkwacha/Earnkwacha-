@@ -7,7 +7,7 @@
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
 body { background: #f4f4f4; padding: 20px; color: #000; }
-.container { max-width: 500px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+.container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
 h1 { text-align: center; color: #007bff; }
 h2 { text-align: center; margin: 15px 0; }
 input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
@@ -18,20 +18,28 @@ input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #d
 .btn-red { background: red; }
 .btn-gray { background: gray; cursor: not-allowed; }
 .btn-purple { background: #6f42c1; }
-.btn-yellow { background: #ffc107; color: black; }
+.btn-small { padding: 6px 12px; font-size: 14px; width: auto; margin: 2px; }
 .balance-box { text-align: center; margin: 20px 0; padding: 20px; background: #e8f5e9; border-radius: 10px; }
 .balance { font-size: 36px; color: green; font-weight: bold; }
 .task { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #007bff; display: flex; justify-content: space-between; align-items: center; }
 .task button { padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
 .task button:disabled { background: gray; cursor: not-allowed; }
-#dashboard, #adminPanel, #tasksSection, #withdrawModal { display: none; }
+#dashboard, #adminPanel, #tasksSection, #withdrawModal, #proofModal { display: none; }
 .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; display: flex; align-items: center; justify-content: center; }
 .modal-content { background: white; padding: 20px; width: 90%; max-width: 400px; border-radius: 10px; }
-.user-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+th { background: #007bff; color: white; }
+.tab button { padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px; margin-right: 5px; background:#ddd; }
+.tab button.active { background: #007bff; color: white; }
 .counter { font-size: 12px; color: #666; }
-.section-title { text-align: left; margin-top: 20px; }
-.section-title span { color: red; font-size: 12px; }
 .notification { position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 15px 20px; border-radius: 8px; display: none; z-index: 1000; }
+.status-badge { padding: 4px 8px; border-radius: 5px; font-size: 12px; color: white; }
+.status-pending { background: orange; }
+.status-approved { background: green; }
+.status-rejected { background: red; }
+.status-paid { background: #6f42c1; }
+img.proof { width: 80px; cursor: pointer; border-radius: 5px; }
 </style>
 </head>
 <body>
@@ -59,9 +67,16 @@ input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #d
 </div>
 
 <button class="btn btn-orange" onclick="openWithdraw()">Request Withdraw</button>
+<button class="btn btn-blue" onclick="showUserWithdraws()">My Withdrawals</button>
 <button class="btn btn-green" onclick="showTasks()">View Tasks</button>
 <button class="btn btn-purple" id="adminBtn" onclick="showAdmin()" style="display:none;">Admin Panel</button>
 <button class="btn btn-red" onclick="logout()">Logout</button>
+
+<!-- MY WITHDRAWALS -->
+<div id="userWithdraws" style="display:none; margin-top:20px;">
+  <h3>My Withdrawal History <button class="btn btn-gray btn-small" onclick="hideUserWithdraws()">Close</button></h3>
+  <table id="userWithdrawTable"><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th><th>Proof</th></tr></thead><tbody></tbody></table>
+</div>
 
 <!-- TASKS HIDDEN -->
 <div id="tasksSection">
@@ -91,19 +106,39 @@ input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #d
 
 </div>
 
-<!-- ADMIN -->
+<!-- ADMIN PANEL -->
 <div class="container" id="adminPanel">
-<h1>👑 Admin Panel</h1>
-<h3>All Users</h3>
-<div id="userList">Loading...</div><br>
-<button class="btn btn-red" onclick="hideAdmin()">Back to Dashboard</button>
+<h1>Admin Panel 🔐</h1>
+<button class="btn btn-blue" onclick="hideAdmin()">Back to Dashboard</button>
+<div class="tab">
+  <button class="tablinks active" id="usersTab" onclick="openTab('Users')">Users</button>
+  <button class="tablinks" id="withdrawTab" onclick="openTab('Withdrawals')">All Withdrawals</button>
+</div>
+
+<div id="Users" class="tabcontent">
+  <h3>All Users</h3>
+  <table id="usersTable">
+    <thead><tr><th>Email</th><th>Balance</th><th>Admin</th><th>Action</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<div id="Withdrawals" class="tabcontent" style="display:none;">
+  <h3>All Withdrawals</h3>
+  <table id="withdrawTable">
+    <thead><tr><th>Email</th><th>Method</th><th>Account</th><th>Points</th><th>MWK</th><th>Status</th><th>Action</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
 </div>
 
 <!-- WITHDRAW MODAL -->
 <div id="withdrawModal" class="modal">
 <div class="modal-content">
   <h3>Request Withdraw</h3>
-  <p>Min: 5000 Points = 5000 MWK</p>
+  <p>Min Withdraw: 5000 Points = 5000 MWK</p>
+  <p style="font-size:12px; color:gray;">Rate: 1 Point = 1 MWK</p>
   <select id="withdrawMethod">
     <option>Binance USDT</option>
     <option>PayPal USD</option>
@@ -119,10 +154,22 @@ input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #d
 </div>
 </div>
 
+<!-- PAYMENT PROOF MODAL -->
+<div id="proofModal" class="modal">
+<div class="modal-content">
+  <h3>Upload Payment Proof</h3>
+  <p id="proofInfo"></p>
+  <input type="file" id="proofFile" accept="image/*">
+  <button class="btn btn-purple" onclick="uploadProof()">Mark as Paid</button>
+  <button class="btn btn-red" onclick="closeProof()">Cancel</button>
+</div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, addDoc, collection, getDocs, increment, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, addDoc, collection, getDocs, increment, onSnapshot, serverTimestamp, query, where, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBUzpLPaWrT2SC7ncLZyGVRM88YfX_iJF4",
@@ -136,10 +183,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app); // ADDED STORAGE
 const ADMIN_EMAIL = "kellybkenani@gmail.com";
 
 let currentUserData = {};
 let dailyLimits = {ads: 0, yt: 0, spin: 0, quiz: 0, invite: 0};
+let currentProofId = "";
 
 function showNotif(msg){
   const n = document.getElementById('notification');
@@ -185,6 +234,21 @@ window.logout = () => { signOut(auth); }
 
 window.showTasks = () => { document.getElementById("tasksSection").style.display = "block"; }
 window.hideTasks = () => { document.getElementById("tasksSection").style.display = "none"; }
+
+window.showUserWithdraws = async () => {
+  document.getElementById("tasksSection").style.display = "none";
+  document.getElementById("userWithdraws").style.display = "block";
+  const q = query(collection(db, "withdrawals"), where("userId", "==", auth.currentUser.uid), orderBy("createdAt", "desc"));
+  const querySnapshot = await getDocs(q); 
+  let html = "";
+  querySnapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    let proof = data.proofUrl? `<img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">` : "-";
+    html += `<tr><td>${new Date(data.createdAt?.seconds*1000).toLocaleDateString()}</td><td>${data.amount}</td><td>${data.method}</td><td>${data.status}</td><td>${proof}</td></tr>`;
+  });
+  document.querySelector("#userWithdrawTable tbody").innerHTML = html || "<tr><td colspan=5>No withdrawals</td></tr>";
+}
+window.hideUserWithdraws = () => { document.getElementById("userWithdraws").style.display = "none"; }
 
 window.addTaskPoints = async (type, pts) => {
   const user = auth.currentUser;
@@ -236,22 +300,77 @@ window.requestWithdraw = async () => {
   if (amount < 5000) return showNotif("Min withdraw is 5000 Points");
   
   await addDoc(collection(db, "withdrawals"), { 
-    userId: user.uid, email: currentUserData.email, method, account, amount, 
-    status: "pending", createdAt: serverTimestamp() 
+    userId: user.uid, email: currentUserData.email, method, account, amount, mwk: amount,
+    status: "pending", proofUrl: "", createdAt: serverTimestamp() 
   });
   await updateDoc(doc(db, "users", user.uid), { points: increment(-amount) });
-  showNotif(`Withdraw request submitted for ${amount} Points`); 
+  showNotif(`Withdraw request submitted for ${amount} MWK`); 
   closeWithdraw();
+}
+
+window.openTab = (tabName) => {
+  document.querySelectorAll('.tabcontent').forEach(t => t.style.display='none');
+  document.querySelectorAll('.tablinks').forEach(b => b.classList.remove('active'));
+  document.getElementById(tabName).style.display='block';
+  document.getElementById(tabName==='Users'?'usersTab':'withdrawTab').classList.add('active');
+  if(tabName==='Users') loadAllUsers();
+  if(tabName==='Withdrawals') loadAllWithdrawals();
 }
 
 window.showAdmin = async () => {
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('adminPanel').style.display = 'block';
-  loadAllUsers();
+  openTab('Users');
 }
 window.hideAdmin = () => {
   document.getElementById('adminPanel').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
+}
+
+window.addPoints = async (userId) => {
+  await updateDoc(doc(db, "users", userId), { points: increment(100) });
+  showNotif("+100 Points added");
+  loadAllUsers();
+}
+
+window.approveWithdraw = async (withdrawId) => {
+  await updateDoc(doc(db, "withdrawals", withdrawId), { status: "approved" });
+  showNotif("Withdrawal Approved");
+  loadAllWithdrawals();
+}
+
+window.rejectWithdraw = async (withdrawId) => {
+  const wDoc = await getDoc(doc(db, "withdrawals", withdrawId));
+  const data = wDoc.data();
+  await updateDoc(doc(db, "users", data.userId), { points: increment(data.amount) });
+  await updateDoc(doc(db, "withdrawals", withdrawId), { status: "rejected" });
+  showNotif("Withdrawal Rejected + Points Refunded");
+  loadAllWithdrawals();
+}
+
+window.openProof = (withdrawId, email, amount) => {
+  currentProofId = withdrawId;
+  document.getElementById('proofInfo').innerText = `Pay ${amount} MWK to ${email}`;
+  document.getElementById('proofModal').style.display = 'flex';
+}
+window.closeProof = () => { document.getElementById('proofModal').style.display = 'none'; }
+
+window.uploadProof = async () => {
+  const file = document.getElementById('proofFile').files[0];
+  if(!file) return showNotif("Select an image first");
+  
+  showNotif("Uploading proof...");
+  const storageRef = ref(storage, `withdraw_proofs/${currentProofId}_${Date.now()}.jpg`);
+  const snapshot = await uploadBytes(storageRef, file);
+  const url = await getDownloadURL(snapshot.ref);
+  
+  await updateDoc(doc(db, "withdrawals", currentProofId), { 
+    status: "paid", 
+    proofUrl: url 
+  });
+  showNotif("Marked as Paid + Proof Uploaded");
+  closeProof();
+  loadAllWithdrawals();
 }
 
 async function loadAllUsers(){
@@ -259,9 +378,51 @@ async function loadAllUsers(){
   let html = "";
   querySnapshot.forEach((docSnap) => {
     const data = docSnap.data();
-    html += `<div class="user-row"><span>${data.email}</span><span><b>${data.points} pts</b></span></div>`;
+    const isAdmin = data.email === ADMIN_EMAIL? "Yes" : "No";
+    const balance = data.points || 0;
+    html += `<tr>
+      <td>${data.email}</td>
+      <td>${balance} pts</td>
+      <td>${isAdmin}</td>
+      <td><button class="btn btn-green btn-small" onclick="addPoints('${docSnap.id}')">+100</button></td>
+    </tr>`;
   });
-  document.getElementById('userList').innerHTML = html || "No users yet";
+  document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=4>No users</td></tr>";
+}
+
+async function loadAllWithdrawals(){
+  const querySnapshot = await getDocs(collection(db, "withdrawals"));
+  let html = "";
+  querySnapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    let statusClass = "status-pending";
+    if(data.status==='approved') statusClass="status-approved";
+    if(data.status==='rejected') statusClass="status-rejected";
+    if(data.status==='paid') statusClass="status-paid";
+    
+    let actions = `<span class="status-badge ${statusClass}">${data.status}</span>`;
+    if(data.status==='pending'){
+      actions = `<button class="btn btn-green btn-small" onclick="approveWithdraw('${docSnap.id}')">Approve</button>
+                 <button class="btn btn-red btn-small" onclick="rejectWithdraw('${docSnap.id}')">Reject</button>`;
+    }
+    if(data.status==='approved'){
+      actions = `<button class="btn btn-purple btn-small" onclick="openProof('${docSnap.id}','${data.email}',${data.mwk})">Mark Paid</button>`;
+    }
+    if(data.proofUrl){
+      actions += ` <img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">`;
+    }
+    
+    html += `<tr>
+      <td>${data.email}</td>
+      <td>${data.method}</td>
+      <td>${data.account}</td>
+      <td>${data.amount}</td>
+      <td>${data.mwk} MWK</td>
+      <td><span class="status-badge ${statusClass}">${data.status}</span></td>
+      <td>${actions}</td>
+    </tr>`;
+  });
+  document.querySelector("#withdrawTable tbody").innerHTML = html || "<tr><td colspan=7>No withdrawals</td></tr>";
 }
 
 onAuthStateChanged(auth, (user) => {
@@ -273,7 +434,7 @@ onAuthStateChanged(auth, (user) => {
       if(docSnap.exists()){
         currentUserData = docSnap.data();
         document.getElementById("welcome").innerText = `Welcome, ${currentUserData.email}`;
-        document.getElementById("points").innerText = `${currentUserData.points} Points`;
+        document.getElementById("points").innerText = `${currentUserData.points || 0} Points`;
       }
     });
     if(user.email === ADMIN_EMAIL){ document.getElementById("adminBtn").style.display = "block"; }

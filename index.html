@@ -1,27 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EarnKwaCha DEBUG ðŸ’°</title>
-<style> /* same css as before */ </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EarnKwacha 💰</title>
+<style>
+body { font-family: Arial; background: linear-gradient(135deg, #28a745, #20c997); text-align: center; padding: 20px; margin: 0; }
+.container { background: white; padding: 25px; border-radius: 15px; max-width: 400px; margin: 50px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+h1 { color: #28a745; }
+input, button { width: 90%; padding: 12px; margin: 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
+button { background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
+button:hover { background: #218838; }
+#dashboard { display: none; }
+#points { font-size: 40px; color: #28a745; font-weight: bold; }
+#message { color: red; margin-top: 10px; }
+</style>
 </head>
 <body>
-<div class="notification" id="notification"></div>
-<div id="loginPage" class="page active">
-  <div class="container box">
-    <h1>EarnKwaCha DEBUG ðŸ’°</h1>
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <button class="btn btn-green" onclick="signUp()">Sign Up +50 Points</button>
-  </div>
+
+<div class="container" id="auth">
+<h1>💰 EarnKwacha</h1>
+<p>Login or Sign Up to start earning</p>
+<input type="email" id="email" placeholder="Email"><br>
+<input type="password" id="password" placeholder="Password"><br>
+<button onclick="signUp()">Sign Up</button>
+<button onclick="login()">Login</button>
+<p id="message"></p>
+</div>
+
+<div class="container" id="dashboard">
+<h1>Welcome!</h1>
+<p>Your Points</p>
+<h2 id="points">0</h2>
+<button onclick="addPoints()">+10 Points</button><br><br>
+<button onclick="logout()" style="background:#dc3545;">Logout</button>
 </div>
 
 <script type="module">
-alert("JS Loaded âœ…"); // TEST 1
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBUzpLPaWrT2SC7ncLZyGVRM88YfX_iJF4",
@@ -32,36 +50,60 @@ const firebaseConfig = {
   appId: "1:5188195546:web:de9200ec1217bc8f9441e3"
 };
 
-try {
-  const app = initializeApp(firebaseConfig);
-  alert("Firebase Init âœ…"); // TEST 2
-  const auth = getAuth(app);
-  const db = getFirestore(app);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
-  window.signUp = async function() {
-    alert("Button Clicked âœ…"); // TEST 3
-    const email = document.getElementById("email").value; 
-    const password = document.getElementById("password").value;
-    alert("Email: " + email); // TEST 4
-    
-    try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password); 
-      alert("Auth Created âœ… UID: " + userCredential.user.uid); // TEST 5
-      
-      await setDoc(doc(db, "users", userCredential.user.uid), { 
-        email: email, 
-        balance: 50, 
-        createdAt: new Date() 
-      });
-      alert("Firestore Saved âœ… +50 Points"); // TEST 6
-    } catch (error) { 
-      alert("ERROR: " + error.message); // THIS WILL CATCH IT
-      console.error(error);
-    }
+window.signUp = async () => {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    await setDoc(doc(db, "users", userCredential.user.uid), {
+      email: email,
+      points: 0,
+      createdAt: new Date()
+    });
+    document.getElementById('message').innerText = "Account created! ✅";
+  } catch (error) {
+    document.getElementById('message').innerText = error.message;
   }
-} catch(e) {
-  alert("FATAL ERROR: " + e.message);
 }
+
+window.login = async () => {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+  } catch (error) {
+    document.getElementById('message').innerText = error.message;
+  }
+}
+
+window.logout = () => { signOut(auth); }
+
+window.addPoints = async () => {
+  const user = auth.currentUser;
+  if(user){
+    await updateDoc(doc(db, "users", user.uid), { points: increment(10) });
+  }
+}
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    // Live update points
+    onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+      if(docSnap.exists()){
+        document.getElementById('points').innerText = docSnap.data().points;
+      }
+    });
+  } else {
+    document.getElementById('auth').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+  }
+});
 </script>
 </body>
 </html>

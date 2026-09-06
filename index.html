@@ -5,41 +5,80 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>EarnKwacha 💰</title>
 <style>
-body { font-family: Arial; background: linear-gradient(135deg, #28a745, #20c997); text-align: center; padding: 20px; margin: 0; }
-.container { background: white; padding: 25px; border-radius: 15px; max-width: 400px; margin: 50px auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-h1 { color: #28a745; }
-input, button { width: 90%; padding: 12px; margin: 8px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; }
-button { background: #28a745; color: white; border: none; cursor: pointer; font-weight: bold; }
-button:hover { background: #218838; }
-#dashboard { display: none; }
-#points { font-size: 40px; color: #28a745; font-weight: bold; }
-#message { color: red; margin-top: 10px; }
+body { font-family: Arial; background: #f5f5f5; text-align: center; padding: 15px; margin: 0; }
+.container { background: white; padding: 20px; border-radius: 15px; max-width: 420px; margin: 20px auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+h1 { color: #007BFF; font-size: 28px; margin: 0; } /* BLUE TITLE */
+h2 { margin: 10px 0; }
+.welcome { color: #666; font-size: 14px; margin-bottom: 15px; }
+.balance-box { background: #E8F5E9; padding: 15px; border-radius: 10px; margin: 15px 0; } /* LIGHT GREEN */
+.balance { font-size: 32px; color: #28a745; font-weight: bold; } /* DARK GREEN */
+.btn { width: 100%; padding: 14px; margin: 8px 0; border-radius: 10px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
+.btn-orange { background: #FF9800; } /* WITHDRAW */
+.btn-green { background: #28a745; } /* TASKS / +POINTS */
+.btn-blue { background: #007BFF; } /* ADMIN */
+.btn-red { background: #dc3545; } /* LOGOUT */
+.btn-gray { background: #6c757d; }
+.section-title { text-align: left; margin-top: 20px; }
+.section-title span { color: red; font-size: 12px; }
+.task { background: #f8f9fa; border-left: 4px solid #007BFF; padding: 12px; margin: 10px 0; border-radius: 8px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+#dashboard, #adminPanel { display: none; }
+#message { color: red; }
+.user-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
 </style>
 </head>
 <body>
 
 <div class="container" id="auth">
-<h1>💰 EarnKwacha</h1>
+<h1>EarnKwaCha 💰</h1>
 <p>Login or Sign Up to start earning</p>
-<input type="email" id="email" placeholder="Email"><br>
-<input type="password" id="password" placeholder="Password"><br>
-<button onclick="signUp()">Sign Up</button>
-<button onclick="login()">Login</button>
+<input type="email" id="email" placeholder="Email" style="width:90%; padding:12px; margin:8px; border-radius:8px; border:1px solid #ccc;"><br>
+<input type="password" id="password" placeholder="Password" style="width:90%; padding:12px; margin:8px; border-radius:8px; border:1px solid #ccc;"><br>
+<button class="btn btn-green" onclick="signUp()">Sign Up</button>
+<button class="btn btn-blue" onclick="login()">Login</button>
 <p id="message"></p>
 </div>
 
 <div class="container" id="dashboard">
-<h1>Welcome!</h1>
-<p>Your Points</p>
-<h2 id="points">0</h2>
-<button onclick="addPoints()">+10 Points</button><br><br>
-<button onclick="logout()" style="background:#dc3545;">Logout</button>
+<h1>EarnKwaCha 💰</h1>
+<h2>Dashboard</h2>
+<p class="welcome" id="welcomeUser">Welcome, </p>
+
+<div class="balance-box">
+<p>Your Balance</p>
+<div class="balance" id="points">0 Points</div>
+</div>
+
+<button class="btn btn-orange" onclick="alert('Withdraw coming soon!')">Request Withdraw</button>
+<button class="btn btn-green" onclick="addPoints()">View Tasks</button>
+<button class="btn btn-blue" onclick="showAdmin()" id="adminBtn" style="display:none;">Admin Panel</button>
+<button class="btn btn-red" onclick="logout()">Logout</button>
+
+<h3 class="section-title">Available Tasks <span>Resets Daily</span></h3>
+<div class="task">
+  <div><b>Watch Ads - 8 Points</b><br><small>10/10 today</small></div>
+  <button class="btn btn-gray" style="width:80px; padding:8px;" onclick="addTaskPoints(8)">Watch</button>
+</div>
+<div class="task">
+  <div><b>Watch YouTube - 10 Points</b><br><small>10/10 today</small></div>
+  <button class="btn btn-gray" style="width:80px; padding:8px;" onclick="addTaskPoints(10)">Watch</button>
+</div>
+<div class="task">
+  <div><b>Spin & Win - Win 0-5 Points</b></div>
+  <button class="btn btn-gray" style="width:80px; padding:8px;" onclick="spin()">Spin</button>
+</div>
+</div>
+
+<div class="container" id="adminPanel">
+<h1>👑 Admin Panel</h1>
+<h3>All Users</h3>
+<div id="userList">Loading...</div><br>
+<button class="btn btn-red" onclick="hideAdmin()">Back to Dashboard</button>
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, onSnapshot, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBUzpLPaWrT2SC7ncLZyGVRM88YfX_iJF4",
@@ -53,17 +92,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
+const ADMIN_EMAIL = "kellybkenani@gmail.com";
 
 window.signUp = async () => {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(db, "users", userCredential.user.uid), {
-      email: email,
-      points: 0,
-      createdAt: new Date()
-    });
+    await setDoc(doc(db, "users", userCredential.user.uid), { email: email, points: 0 });
     document.getElementById('message').innerText = "Account created! ✅";
   } catch (error) {
     document.getElementById('message').innerText = error.message;
@@ -73,35 +109,63 @@ window.signUp = async () => {
 window.login = async () => {
   const email = document.getElementById('email').value;
   const password = document.getElementById('password').value;
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-  } catch (error) {
-    document.getElementById('message').innerText = error.message;
-  }
+  try { await signInWithEmailAndPassword(auth, email, password); } 
+  catch (error) { document.getElementById('message').innerText = error.message; }
 }
 
 window.logout = () => { signOut(auth); }
 
 window.addPoints = async () => {
   const user = auth.currentUser;
-  if(user){
-    await updateDoc(doc(db, "users", user.uid), { points: increment(10) });
-  }
+  if(user){ await updateDoc(doc(db, "users", user.uid), { points: increment(10) }); }
+}
+
+window.addTaskPoints = async (pts) => {
+  const user = auth.currentUser;
+  if(user){ await updateDoc(doc(db, "users", user.uid), { points: increment(pts) }); }
+}
+
+window.spin = async () => {
+  const pts = Math.floor(Math.random() * 6); // 0-5
+  const user = auth.currentUser;
+  if(user){ await updateDoc(doc(db, "users", user.uid), { points: increment(pts) }); alert(`You won ${pts} Points! 🎉`); }
+}
+
+window.showAdmin = async () => {
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+  loadAllUsers();
+}
+window.hideAdmin = () => {
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+}
+
+async function loadAllUsers(){
+  const querySnapshot = await getDocs(collection(db, "users"));
+  let html = "";
+  querySnapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    html += `<div class="user-row"><span>${data.email}</span><span><b>${data.points} pts</b></span></div>`;
+  });
+  document.getElementById('userList').innerHTML = html || "No users yet";
 }
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
     document.getElementById('auth').style.display = 'none';
     document.getElementById('dashboard').style.display = 'block';
-    // Live update points
+    document.getElementById('welcomeUser').innerText = `Welcome, ${user.email}`;
+    if(user.email === ADMIN_EMAIL){ document.getElementById('adminBtn').style.display = 'block'; }
     onSnapshot(doc(db, "users", user.uid), (docSnap) => {
       if(docSnap.exists()){
-        document.getElementById('points').innerText = docSnap.data().points;
+        document.getElementById('points').innerText = docSnap.data().points + " Points";
       }
     });
   } else {
     document.getElementById('auth').style.display = 'block';
     document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'none';
   }
 });
 </script>

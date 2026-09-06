@@ -66,8 +66,6 @@ img.proof { width: 80px; cursor: pointer; border-radius: 5px; }
 .announcement { background: #fff3cd; color: #856404; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107; display: flex; justify-content: space-between; align-items: center; }
 .announcement button { background: none; border: none; font-size: 20px; cursor: pointer; color: #856404; }
 body.dark.announcement { background: #332b00; color: #ffeeba; border-left: 4px solid #ffc107; }
-.ref-box { background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; border: 2px dashed #007bff; }
-body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 </style>
 </head>
 <body>
@@ -107,13 +105,6 @@ body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 <div class="balance" id="points">0 Points</div>
 </div>
 
-<div class="ref-box">
-  <h4>💰 Referral Program</h4>
-  <p><b>Level 1: 10 Points</b> | <b>Level 2: 5 Points</b></p>
-  <input type="text" id="refLink" readonly placeholder="Your link will appear here">
-  <button class="btn btn-green btn-small" onclick="copyRef()">Copy Link</button>
-</div>
-
 <button class="btn btn-orange" onclick="openWithdraw()">Request Withdraw</button>
 <button class="btn btn-blue" onclick="showUserWithdraws()">My Withdrawals</button>
 <button class="btn btn-green" onclick="showTasks()">View Tasks</button>
@@ -150,6 +141,10 @@ body.dark.ref-box { background: #001f3f; border-color: #007bff; }
   <div><b>Quick Quiz - 10 Points</b><br><span class="counter" id="quizCount">0/3 today</span></div>
   <button id="quizBtn" onclick="quizGame()">Play</button>
 </div>
+<div class="task">
+  <div><b>Invite Friend - 20 Points</b><br><span class="counter" id="inviteCount">0/5 today</span></div>
+  <button id="inviteBtn" onclick="showInvite()">Invite</button>
+</div>
 <button class="btn btn-red" onclick="hideTasks()">Close Tasks</button>
 </div>
 
@@ -168,7 +163,7 @@ body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 <div id="Users" class="tabcontent">
   <h3>All Users</h3>
   <table id="usersTable">
-    <thead><tr><th>Email</th><th>Balance</th><th>Referred</th><th>Admin</th><th>Action</th></tr></thead>
+    <thead><tr><th>Email</th><th>Balance</th><th>Admin</th><th>Action</th></tr></thead>
     <tbody></tbody>
   </table>
 </div>
@@ -257,7 +252,7 @@ const ADMIN_EMAIL = "kellybkenani@gmail.com";
 const ADMIN_PASSWORD = "0909kelly";
 
 let currentUserData = {};
-let dailyLimits = {ads: 0, yt: 0, spin: 0, quiz: 0};
+let dailyLimits = {ads: 0, yt: 0, spin: 0, quiz: 0, invite: 0};
 let currentProofId = "";
 
 // DARK MODE
@@ -273,6 +268,16 @@ function showNotif(msg){
   const n = document.getElementById('notification');
   n.innerText = msg; n.style.display = 'block';
   setTimeout(()=> n.style.display='none', 3000);
+}
+
+// EMAIL FUNCTION - REQUIRES FIREBASE "TRIGGER EMAIL" EXTENSION
+async function sendEmail(to, subject, html){
+  try {
+    await addDoc(collection(db, "mail"), {
+      to: to,
+      message: { subject: subject, html: html }
+    });
+  } catch(e) { console.log("Email error:", e) }
 }
 
 // ANNOUNCEMENT FUNCTIONS
@@ -311,7 +316,7 @@ function checkReset(){
   const today = new Date().toLocaleDateString();
   const lastReset = localStorage.getItem('lastResetDate');
   if(lastReset!== today){
-    dailyLimits = {ads: 0, yt: 0, spin: 0, quiz: 0};
+    dailyLimits = {ads: 0, yt: 0, spin: 0, quiz: 0, invite: 0};
     saveLimits();
     localStorage.setItem('lastResetDate', today);
     showNotif("Daily tasks reset! 🔄");
@@ -335,7 +340,7 @@ setInterval(updateTimer, 1000);
 function getLimitKey() { return `limits_${auth.currentUser?.uid}`; }
 function loadLimits(){
   checkReset();
-  dailyLimits = JSON.parse(localStorage.getItem(getLimitKey())) || {ads: 0, yt: 0, spin: 0, quiz: 0};
+  dailyLimits = JSON.parse(localStorage.getItem(getLimitKey())) || {ads: 0, yt: 0, spin: 0, quiz: 0, invite: 0};
   updateCounters();
 }
 function saveLimits(){ localStorage.setItem(getLimitKey(), JSON.stringify(dailyLimits)); }
@@ -345,42 +350,21 @@ function updateCounters(){
   document.getElementById('ytCount').innerText = `${dailyLimits.yt}/10 today`;
   document.getElementById('spinCount').innerText = `${dailyLimits.spin}/1 today`;
   document.getElementById('quizCount').innerText = `${dailyLimits.quiz}/3 today`;
+  document.getElementById('inviteCount').innerText = `${dailyLimits.invite}/5 today`;
   document.getElementById('adsBtn').disabled = dailyLimits.ads >= 10;
   document.getElementById('ytBtn').disabled = dailyLimits.yt >= 10;
   document.getElementById('spinBtn').disabled = dailyLimits.spin >= 1;
   document.getElementById('quizBtn').disabled = dailyLimits.quiz >= 3;
+  document.getElementById('inviteBtn').disabled = dailyLimits.invite >= 5;
 }
 
 window.signUp = async () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-  const urlParams = new URLSearchParams(window.location.search);
-  const refId = urlParams.get('ref');
-
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    let referredBy = "";
-    let referredByL2 = "";
-
-    if(refId){
-      const refDoc = await getDoc(doc(db, "users", refId));
-      if(refDoc.exists()){
-        referredBy = refId;
-        referredByL2 = refDoc.data().referredBy || "";
-        await updateDoc(doc(db, "users", refId), { points: increment(10) }); // L1
-        if(referredByL2){
-          await updateDoc(doc(db, "users", referredByL2), { points: increment(5) }); // L2
-        }
-      }
-    }
-
-    await setDoc(doc(db, "users", userCredential.user.uid), {
-      email: email,
-      points: 50,
-      referredBy: referredBy,
-      referredByL2: referredByL2
-    });
-
+    await setDoc(doc(db, "users", userCredential.user.uid), { email: email, points: 50 });
+    await sendEmail(email, "Welcome to EarnKwaCha!", `<p>Account created! You got 50 free points. Start earning now.</p>`);
     showNotif("Account created! +50 Points");
   } catch (error) { showNotif(error.message); }
 }
@@ -471,11 +455,11 @@ window.quizGame = async () => {
   } else { showNotif(`Wrong! Answer: ${randomQ.a}`) }
 }
 
-window.copyRef = () => {
+window.showInvite = () => {
+  if(dailyLimits.invite>=5) return showNotif("Limit: 5 invites per day");
   const link = `${window.location.origin}${window.location.pathname}?ref=${auth.currentUser.uid}`;
-  document.getElementById('refLink').value = link;
-  navigator.clipboard.writeText(link);
-  showNotif("Referral link copied!");
+  prompt("Send this link. You get 20pts per signup:", link);
+  dailyLimits.invite++; saveLimits(); updateCounters();
 }
 
 window.openWithdraw = () => { document.getElementById('withdrawModal').style.display = 'flex'; }
@@ -494,8 +478,9 @@ window.requestWithdraw = async () => {
     userId: user.uid, email: currentUserData.email, method, account, amount, mwk: amount,
     status: "pending", proofUrl: "", createdAt: serverTimestamp()
   });
-  await updateDoc(doc(db, "users", user.uid), { points: increment(-amount) });
-  showNotif(`Withdraw request submitted. ${amount} Points deducted`);
+
+  await sendEmail(currentUserData.email, "Withdraw Request Received", `<p>Your request for ${amount} MWK is pending. We will review it soon.</p>`);
+  showNotif(`Withdraw request submitted`);
   closeWithdraw();
 }
 
@@ -526,16 +511,18 @@ window.addPoints = async (userId) => {
 
 window.approveWithdraw = async (withdrawId) => {
   await updateDoc(doc(db, "withdrawals", withdrawId), { status: "approved" });
-  showNotif("Withdrawal Approved");
+  const wDoc = await getDoc(doc(db, "withdrawals", withdrawId));
+  await sendEmail(wDoc.data().email, "Withdraw Approved", `<p>Your ${wDoc.data().amount} MWK withdrawal is approved. Payment processing.</p>`);
+  showNotif("Withdrawal Approved + Email Sent");
   loadAllWithdrawals();
 }
 
 window.rejectWithdraw = async (withdrawId) => {
   const wDoc = await getDoc(doc(db, "withdrawals", withdrawId));
   const data = wDoc.data();
-  await updateDoc(doc(db, "users", data.userId), { points: increment(data.amount) });
   await updateDoc(doc(db, "withdrawals", withdrawId), { status: "rejected" });
-  showNotif("Withdrawal Rejected + Points Refunded");
+  await sendEmail(data.email, "Withdraw Rejected", `<p>Your ${data.amount} MWK withdrawal was rejected.</p>`);
+  showNotif("Withdrawal Rejected + Email Sent");
   loadAllWithdrawals();
 }
 
@@ -559,7 +546,10 @@ window.uploadProof = async () => {
     status: "paid",
     proofUrl: url
   });
-  showNotif("Marked as Paid + Proof Uploaded");
+  const wDoc = await getDoc(doc(db, "withdrawals", currentProofId));
+  await sendEmail(wDoc.data().email, "Payment Sent!", `<p>Your ${wDoc.data().mwk} MWK has been paid. Check your account.</p>`);
+
+  showNotif("Marked as Paid + Email Sent");
   closeProof();
   loadAllWithdrawals();
 }
@@ -591,16 +581,14 @@ async function loadAllUsers(){
     const data = docSnap.data();
     const isAdmin = data.email === ADMIN_EMAIL? "Yes" : "No";
     const balance = data.points || 0;
-    const ref = data.referredBy? "Yes" : "No";
     html += `<tr>
       <td>${data.email}</td>
       <td>${balance} pts</td>
-      <td>${ref}</td>
       <td>${isAdmin}</td>
       <td><button class="btn btn-green btn-small" onclick="addPoints('${docSnap.id}')">+100</button></td>
     </tr>`;
   });
-  document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=5>No users</td></tr>";
+  document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=4>No users</td></tr>";
 }
 
 async function loadAllWithdrawals(){
@@ -644,7 +632,6 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById('dashboard').style.display = 'block';
     loadLimits();
     loadAnnouncement();
-    document.getElementById('refLink').value = `${window.location.origin}${window.location.pathname}?ref=${user.uid}`;
     onSnapshot(doc(db, "users", user.uid), (docSnap) => {
       if(docSnap.exists()){
         currentUserData = docSnap.data();

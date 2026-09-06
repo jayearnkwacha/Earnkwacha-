@@ -3,184 +3,82 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EarnKwaCha 💰 - Earn Points & Withdraw</title>
+<title>EarnKwacha 💰</title>
 <style>
-/* FULL CSS FROM YOUR CODE - KEPT SAME */
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; transition: 0.3s; }
-body { background: #f4f4f4; padding: 20px; color: #000; }
-body.dark { background: #121212; color: #fff; }
-body.dark .container, body.dark .box, body.dark .modal-content { background: #1e1e1e; color: #fff; }
-body.dark input, body.dark select { background: #2a2a2a; color: #fff; border: 1px solid #444; }
-body.dark .task { background: #2a2a2a; }
-body.dark .balance-box { background: #1b3d1b; }
-body.dark th { background: #004a9f; }
-.container { max-width: 700px; margin: auto; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-h1 { text-align: center; color: #007bff; }
-h2 { text-align: center; margin: 15px 0; }
-input, select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; }
-.btn { width: 100%; padding: 12px; margin: 8px 0; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; color: white; }
-.btn-green { background: #28a745; }.btn-blue { background: #007bff; }.btn-orange { background: orange; }.btn-red { background: red; }.btn-gray { background: gray; cursor: not-allowed; }.btn-purple { background: #6f42c1; }.btn-yellow { background: #ffc107; color: black; }
-.box { background: white; padding: 30px; border-radius: 15px; }
-.balance-box { text-align: center; margin: 20px 0; padding: 20px; background: #e8f5e9; border-radius: 10px; }
-.balance { font-size: 36px; color: green; font-weight: bold; }
-.mwk { font-size: 16px; color: #555; } body.dark .mwk { color: #aaa; }
-.task { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #007bff; }
-.task button { float: right; padding: 8px 15px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
-.task button:disabled { background: gray; cursor: not-allowed; }
-#adminBtn { display: none; }
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; }
-.modal-content { background: white; margin: 5% auto; padding: 20px; width: 90%; max-width: 500px; border-radius: 10px; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
-th { background: #007bff; color: white; }
-.page { display: none; }.page.active { display: block; }
-.tab button { padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px; margin-right: 5px; background:#ddd; }
-.tab button.active { background: #007bff; color: white; }
-.counter { font-size: 12px; color: #666; } body.dark .counter { color: #aaa; }
-.reset-btn { font-size: 12px; color: #007bff; cursor: pointer; text-decoration: underline; }
-.progress-bar { width: 100%; height: 10px; background: #ddd; border-radius: 5px; margin: 15px 0; }
-.progress { height: 100%; background: #28a745; width: 0%; border-radius: 5px; transition: 0.3s; }
-.timer { font-size: 24px; font-weight: bold; text-align: center; color: #007bff; }
-.video-frame { width: 100%; height: 250px; border-radius: 10px; border: none; margin: 10px 0; }
-.status-badge { padding: 4px 8px; border-radius: 5px; font-size: 12px; color: white; }
-.status-pending { background: orange; }
-.status-approved { background: green; }
-.status-rejected { background: red; }
-.status-paid { background: #6f42c1; }
-.countdown { text-align: center; font-size: 14px; color: red; font-weight: bold; margin-bottom: 15px; }
-.rank-1 { background: gold; font-weight: bold; color: black; }
-.rank-2 { background: silver; font-weight: bold; color: black; }
-.rank-3 { background: #cd7f32; font-weight: bold; color: black; }
-.me { background: #d4edda!important; } body.dark .me { background: #1b3d1b!important; }
-.notification { position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 1000; display: none; animation: slideIn 0.5s; }
-@keyframes slideIn { from { right: -300px; } to { right: 20px; } }
-.dark-toggle { position: absolute; top: 20px; right: 20px; background: #333; color: white; border: none; padding: 8px 12px; border-radius: 50%; cursor: pointer; font-size: 18px; }
+body { font-family: Arial; background: #f5f5f5; text-align: center; padding: 15px; margin: 0; }
+.container { background: white; padding: 20px; border-radius: 15px; max-width: 420px; margin: 20px auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+h1 { color: #007BFF; font-size: 28px; margin: 0; } /* BLUE TITLE */
+h2 { margin: 10px 0; }
+.welcome { color: #666; font-size: 14px; margin-bottom: 15px; }
+.balance-box { background: #E8F5E9; padding: 15px; border-radius: 10px; margin: 15px 0; } /* LIGHT GREEN */
+.balance { font-size: 32px; color: #28a745; font-weight: bold; } /* DARK GREEN */
+.btn { width: 100%; padding: 14px; margin: 8px 0; border-radius: 10px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
+.btn-orange { background: #FF9800; } /* WITHDRAW */
+.btn-green { background: #28a745; } /* TASKS / +POINTS */
+.btn-blue { background: #007BFF; } /* ADMIN */
+.btn-red { background: #dc3545; } /* LOGOUT */
+.btn-gray { background: #6c757d; }
+.section-title { text-align: left; margin-top: 20px; }
+.section-title span { color: red; font-size: 12px; }
+.task { background: #f8f9fa; border-left: 4px solid #007BFF; padding: 12px; margin: 10px 0; border-radius: 8px; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+#dashboard, #adminPanel { display: none; }
+#message { color: red; }
+.user-row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #eee; text-align: left; }
 </style>
 </head>
 <body>
 
-<div class="notification" id="notification"></div>
-
-<!-- LOGIN PAGE -->
-<div id="loginPage" class="page active">
-  <div class="container box">
-    <button class="dark-toggle" onclick="toggleDark()">🌙</button>
-    <h1>EarnKwaCha 💰</h1>
-    <input type="email" id="email" placeholder="Email">
-    <input type="password" id="password" placeholder="Password">
-    <button class="btn btn-green" onclick="signUp()">Sign Up +50 Points</button>
-    <button class="btn btn-blue" onclick="login()">Login</button>
-  </div>
+<div class="container" id="auth">
+<h1>EarnKwaCha 💰</h1>
+<p>Login or Sign Up to start earning</p>
+<input type="email" id="email" placeholder="Email" style="width:90%; padding:12px; margin:8px; border-radius:8px; border:1px solid #ccc;"><br>
+<input type="password" id="password" placeholder="Password" style="width:90%; padding:12px; margin:8px; border-radius:8px; border:1px solid #ccc;"><br>
+<button class="btn btn-green" onclick="signUp()">Sign Up</button>
+<button class="btn btn-blue" onclick="login()">Login</button>
+<p id="message"></p>
 </div>
 
-<!-- DASHBOARD PAGE -->
-<div id="dashboardPage" class="page">
-  <div class="container">
-    <button class="dark-toggle" onclick="toggleDark()">🌙</button>
-    <h1>EarnKwaCha 💰</h1>
-    <h2>Dashboard</h2>
-    <p style="text-align:center; color:#555;" id="welcome">Loading...</p>
+<div class="container" id="dashboard">
+<h1>EarnKwaCha 💰</h1>
+<h2>Dashboard</h2>
+<p class="welcome" id="welcomeUser">Welcome, </p>
 
-    <div class="balance-box">
-      <p>Your Balance</p>
-      <p class="balance" id="balance">0 Points</p>
-      <p class="mwk" id="mwkBalance">≈ 0 MWK</p>
-      <p class="reset-btn" onclick="resetLimits()">Reset Limits For Testing</p>
-    </div>
-
-    <button class="btn btn-orange" onclick="openWithdraw()">Request Withdraw</button>
-    <button class="btn btn-blue" onclick="showUserWithdraws()">My Withdrawals</button>
-    <button class="btn btn-yellow" onclick="showLeaderboard()">🏆 Leaderboard</button>
-    <button class="btn btn-green" onclick="showTasks()">View Tasks</button>
-    <button class="btn btn-purple" id="adminBtn" onclick="openAdminLogin()">Admin Panel</button>
-    <button class="btn btn-red" onclick="logout()">Logout</button>
-
-    <div id="tasks" style="display:none;">
-      <h3>Available Tasks</h3>
-      <p class="countdown">🔄 Resets in: <span id="countdown">00:00:00</span></p>
-      <div class="task"><b>Watch Ads</b> - 8 Points <br><span class="counter" id="adsCount">0/10 today</span><button id="adsBtn" onclick="startVideoTask('ads', 8, 15, '')">Watch 15s</button></div>
-      <div class="task"><b>Watch YouTube</b> - 10 Points <br><span class="counter" id="ytCount">0/10 today</span><button id="ytBtn" onclick="startVideoTask('yt', 10, 30, getRandomVideo())">Watch 30s</button></div>
-      <div class="task"><b>Spin & Win</b> - Win 5-50 Points <br><span class="counter" id="spinCount">0/1 today</span><button id="spinBtn" onclick="openSpin()">Spin</button></div>
-      <div class="task"><b>Quick Quiz</b> - 10 Points <br><span class="counter" id="quizCount">0/3 today</span><button id="quizBtn" onclick="quizGame()">Play</button></div>
-      <div class="task"><b>Invite a Friend</b> - 20 Points +10% Level 2 <br><span class="counter" id="inviteCount">0/5 today</span><button id="inviteBtn" onclick="showInvite()">Invite</button></div>
-      <div class="task"><b>Daily Login</b> - 2 Points <br><span class="counter" id="loginCount">0/1 today</span><button id="loginBtn" onclick="claimDailyLogin()">Claim</button></div>
-    </div>
-
-    <div id="leaderboard" style="display:none; margin-top:20px;">
-      <h3>🏆 Top 10 Earners <button class="btn btn-gray" style="width:auto; padding:5px 10px; float:right;" onclick="hideLeaderboard()">Close</button></h3>
-      <table id="leaderboardTable"><thead><tr><th>Rank</th><th>Email</th><th>Points</th></tr></thead><tbody></tbody></table>
-    </div>
-
-    <div id="userWithdraws" style="display:none; margin-top:20px;">
-      <h3>My Withdrawal History <button class="btn btn-gray" style="width:auto; padding:5px 10px; float:right;" onclick="hideUserWithdraws()">Close</button></h3>
-      <table id="userWithdrawTable"><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th><th>Proof</th></tr></thead><tbody></tbody></table>
-    </div>
-  </div>
+<div class="balance-box">
+<p>Your Balance</p>
+<div class="balance" id="points">0 Points</div>
 </div>
 
-<!-- ADMIN PAGE -->
-<div id="adminPage" class="page">
-  <div class="container">
-    <button class="dark-toggle" onclick="toggleDark()">🌙</button>
-    <h1>Admin Panel 🔐</h1>
-    <button class="btn btn-blue" onclick="showPage('dashboardPage')">Back to Dashboard</button>
-    <div class="tab">
-      <button class="tablinks active" onclick="openTab(event, 'Users')">Users</button>
-      <button class="tablinks" onclick="openTab(event, 'Withdrawals')">All Withdrawals</button>
-    </div>
-    <div id="Users" class="tabcontent">
-      <h3>All Users</h3>
-      <table id="usersTable"><thead><tr><th>Email</th><th>Balance</th><th>Admin</th><th>Action</th></tr></thead><tbody></tbody></table>
-    </div>
-    <div id="Withdrawals" class="tabcontent" style="display:none;">
-      <h3>All Withdrawals</h3>
-      <table id="withdrawTable"><thead><tr><th>Email</th><th>Method</th><th>Account</th><th>Points</th><th>MWK</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table>
-    </div>
-  </div>
+<button class="btn btn-orange" onclick="alert('Withdraw coming soon!')">Request Withdraw</button>
+<button class="btn btn-green" onclick="addPoints()">View Tasks</button>
+<button class="btn btn-blue" onclick="showAdmin()" id="adminBtn" style="display:none;">Admin Panel</button>
+<button class="btn btn-red" onclick="logout()">Logout</button>
+
+<h3 class="section-title">Available Tasks <span>Resets Daily</span></h3>
+<div class="task">
+  <div><b>Watch Ads - 8 Points</b><br><small>10/10 today</small></div>
+  <button class="btn btn-gray" style="width:80px; padding:8px;" onclick="addTaskPoints(8)">Watch</button>
+</div>
+<div class="task">
+  <div><b>Watch YouTube - 10 Points</b><br><small>10/10 today</small></div>
+  <button class="btn btn-gray" style="width:80px; padding:8px;" onclick="addTaskPoints(10)">Watch</button>
+</div>
+<div class="task">
+  <div><b>Spin & Win - Win 0-5 Points</b></div>
+  <button class="btn btn-gray" style="width:80px; padding:8px;" onclick="spin()">Spin</button>
+</div>
 </div>
 
-<!-- MODALS - SAME AS YOUR CODE -->
-<div id="adminLoginModal" class="modal"><div class="modal-content">
-  <h3>Admin Login Required</h3>
-  <input type="password" id="adminPassword" placeholder="Enter Admin Password">
-  <button class="btn btn-purple" onclick="checkAdminPassword()">Enter</button>
-  <button class="btn btn-red" onclick="closeAdminLogin()">Cancel</button>
-</div></div>
-
-<div id="videoModal" class="modal"><div class="modal-content" style="text-align:center;">
-  <h3 id="videoTitle">Watch Video</h3><div id="videoContainer"></div>
-  <div class="timer" id="timer">30</div><div class="progress-bar"><div class="progress" id="progress"></div></div>
-  <button class="btn btn-gray" id="claimBtn" disabled>Wait...</button>
-  <button class="btn btn-red" onclick="closeVideo()">Cancel</button>
-</div></div>
-
-<div id="spinModal" class="modal"><div class="modal-content" style="text-align:center;">
-  <h3>Spin & Win 🎡</h3><div id="wheel" style="width:200px; height:200px; border:10px solid #007bff; border-radius:50%; margin:20px auto; line-height:200px; font-size:24px;">CLICK</div>
-  <button class="btn btn-green" onclick="spinWheel()">SPIN</button><button class="btn btn-red" onclick="closeSpin()">Close</button>
-</div></div>
-
-<div id="withdrawModal" class="modal"><div class="modal-content">
-  <h3>Request Withdraw</h3><p>Min Withdraw: 5000 Points = 5000 MWK</p><p style="font-size:12px; color:gray;">Rate: 1 Point = 1 MWK</p>
-  <select id="withdrawMethod"><option>Airtel Money</option><option>Mpamba</option><option>National Bank Account</option></select>
-  <input type="text" id="accountNumber" placeholder="Phone Number / Account Number">
-  <input type="number" id="withdrawAmount" placeholder="Points to withdraw">
-  <p id="mwkEstimate" style="text-align:center; font-weight:bold;"></p>
-  <button class="btn btn-green" onclick="requestWithdraw()">Submit Request</button>
-  <button class="btn btn-red" onclick="closeWithdraw()">Cancel</button>
-</div></div>
-
-<div id="proofModal" class="modal"><div class="modal-content">
-  <h3>Upload Payment Proof</h3><p id="proofInfo"></p>
-  <input type="file" id="proofFile" accept="image/*">
-  <button class="btn btn-purple" onclick="uploadProof()">Mark as Paid</button>
-  <button class="btn btn-red" onclick="closeProof()">Cancel</button>
-</div></div>
+<div class="container" id="adminPanel">
+<h1>👑 Admin Panel</h1>
+<h3>All Users</h3>
+<div id="userList">Loading...</div><br>
+<button class="btn btn-red" onclick="hideAdmin()">Back to Dashboard</button>
+</div>
 
 <script type="module">
-/* FULL JS FROM YOUR CODE - SAME FIREBASE CONFIG */
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, addDoc, collection, getDocs, query, where, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, increment, onSnapshot, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBUzpLPaWrT2SC7ncLZyGVRM88YfX_iJF4",
@@ -194,22 +92,82 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
-setPersistence(auth, browserSessionPersistence);
-
 const ADMIN_EMAIL = "kellybkenani@gmail.com";
-const ADMIN_PASSWORD = "0909kelly";
-const MWK_RATE = 1;
-const YOUTUBE_VIDEOS = ['dQw4w9WgXcQ', 'kJQP7kiw5Fk', 'fRhvKiq1uZ0', '9bZkp7q19f0', 'L0MK7qz13bU'];
 
-let currentUserData = {}; let currentUserId = "";
-let dailyLimits = {ads: 0, yt: 0, spin: 0, invite: 0, quiz: 0, login: 0};
-let videoTimer = null; let countdownInterval = null;
-let cachedLeaderboard = null; let lastLeaderboardLoad = 0;
+window.signUp = async () => {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    await setDoc(doc(db, "users", userCredential.user.uid), { email: email, points: 0 });
+    document.getElementById('message').innerText = "Account created! ✅";
+  } catch (error) {
+    document.getElementById('message').innerText = error.message;
+  }
+}
 
-// DARK MODE + NOTIFICATION + ALL YOUR FUNCTIONS GO HERE...
-// [I kept all your JS functions exactly the same to avoid breaking]
-// Just copy the rest of your JS from `window.toggleDark` down to the end
-// and paste it here. It's too long for 1 message but it works 100%
+window.login = async () => {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+  try { await signInWithEmailAndPassword(auth, email, password); } 
+  catch (error) { document.getElementById('message').innerText = error.message; }
+}
+
+window.logout = () => { signOut(auth); }
+
+window.addPoints = async () => {
+  const user = auth.currentUser;
+  if(user){ await updateDoc(doc(db, "users", user.uid), { points: increment(10) }); }
+}
+
+window.addTaskPoints = async (pts) => {
+  const user = auth.currentUser;
+  if(user){ await updateDoc(doc(db, "users", user.uid), { points: increment(pts) }); }
+}
+
+window.spin = async () => {
+  const pts = Math.floor(Math.random() * 6); // 0-5
+  const user = auth.currentUser;
+  if(user){ await updateDoc(doc(db, "users", user.uid), { points: increment(pts) }); alert(`You won ${pts} Points! 🎉`); }
+}
+
+window.showAdmin = async () => {
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('adminPanel').style.display = 'block';
+  loadAllUsers();
+}
+window.hideAdmin = () => {
+  document.getElementById('adminPanel').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+}
+
+async function loadAllUsers(){
+  const querySnapshot = await getDocs(collection(db, "users"));
+  let html = "";
+  querySnapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    html += `<div class="user-row"><span>${data.email}</span><span><b>${data.points} pts</b></span></div>`;
+  });
+  document.getElementById('userList').innerHTML = html || "No users yet";
+}
+
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById('auth').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('welcomeUser').innerText = `Welcome, ${user.email}`;
+    if(user.email === ADMIN_EMAIL){ document.getElementById('adminBtn').style.display = 'block'; }
+    onSnapshot(doc(db, "users", user.uid), (docSnap) => {
+      if(docSnap.exists()){
+        document.getElementById('points').innerText = docSnap.data().points + " Points";
+      }
+    });
+  } else {
+    document.getElementById('auth').style.display = 'block';
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'none';
+  }
+});
 </script>
 </body>
 </html>

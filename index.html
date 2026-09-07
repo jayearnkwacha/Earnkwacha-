@@ -47,6 +47,10 @@ img.proof { width: 80px; cursor: pointer; border-radius: 5px; }
 .announcement { background: #fff3cd; color: #856404; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107; display: flex; justify-content: space-between; align-items: center; }
 .announcement button { background: none; border: none; font-size: 20px; cursor: pointer; color: #856404; }
 body.dark.announcement { background: #332b00; color: #ffeeba; border-left: 4px solid #ffc107; }
+
+/* PART 2: REFERRAL BOX */
+.ref-box { background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; border: 2px dashed #007bff; }
+body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 </style>
 </head>
 <body>
@@ -66,6 +70,15 @@ body.dark.announcement { background: #332b00; color: #ffeeba; border-left: 4px s
 <div id="announcementBanner" class="announcement" style="display:none;"><span id="announcementText">📢 </span><button onclick="closeAnnouncement()">×</button></div>
 <h2>Dashboard</h2><p style="text-align:center;" id="welcome">Loading...</p><p class="timer" id="resetTimer">Resets in: 00:00:00</p>
 <div class="balance-box"><p>Your Balance</p><div class="balance" id="points">0 Points</div></div>
+
+<!-- PART 2: REFERRAL BOX -->
+<div class="ref-box">
+  <h4>💰 Referral Program L1 + L2</h4>
+  <p><b>Level 1: 10 Points</b> | <b>Level 2: 5 Points</b></p>
+  <input type="text" id="refLink" readonly placeholder="Your link will appear here">
+  <button class="btn btn-green btn-small" onclick="copyRef()">Copy Link</button>
+</div>
+
 <button class="btn btn-orange" onclick="openWithdraw()">Request Withdraw</button>
 <button class="btn btn-blue" onclick="showUserWithdraws()">My Withdrawals</button>
 <button class="btn btn-green" onclick="showTasks()">View Tasks</button>
@@ -84,7 +97,7 @@ body.dark.announcement { background: #332b00; color: #ffeeba; border-left: 4px s
 
 <div class="container" id="adminPanel"><h1>Admin Panel 🔐</h1><button class="btn btn-blue" onclick="hideAdmin()">Back to Dashboard</button>
 <div class="tab"><button class="tablinks active" id="usersTab" onclick="openTab('Users')">Users</button><button class="tablinks" id="withdrawTab" onclick="openTab('Withdrawals')">Withdrawals</button><button class="tablinks" id="announceTab" onclick="openTab('Announcement')">Announcement</button></div>
-<div id="Users" class="tabcontent"><h3>All Users</h3><table id="usersTable"><thead><tr><th>Email</th><th>Balance</th><th>Referred</th><th>Device ID</th><th>Admin</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+<div id="Users" class="tabcontent"><h3>All Users</h3><table id="usersTable"><thead><tr><th>Email</th><th>Balance</th><th>Referred</th><th>Admin</th><th>Action</th></tr></thead><tbody></tbody></table></div>
 <div id="Withdrawals" class="tabcontent" style="display:none;"><h3>All Withdrawals</h3><table id="withdrawTable"><thead><tr><th>Email</th><th>Method</th><th>Account</th><th>Points</th><th>MWK</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table></div>
 <div id="Announcement" class="tabcontent" style="display:none;"><h3>Post Announcement</h3><textarea id="announceInput" rows="3" placeholder="Type announcement message here..."></textarea><button class="btn btn-orange" onclick="postAnnouncement()">Post Announcement</button><button class="btn btn-red" onclick="clearAnnouncement()">Clear Announcement</button><p style="margin-top:10px; font-size:12px;">Current: <span id="currentAnnounce">None</span></p></div>
 </div>
@@ -99,7 +112,6 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, on
 import { getFirestore, doc, setDoc, getDoc, updateDoc, addDoc, collection, getDocs, increment, onSnapshot, serverTimestamp, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-// YOUR FIREBASE CONFIG - RIGHT HERE 👇
 const firebaseConfig = {
   apiKey: "AIzaSyBUzpLPaWrT2SC7ncLZyGVRM88YfX_iJF4",
   authDomain: "earnkwacha-b385a.firebaseapp.com",
@@ -119,15 +131,6 @@ let currentUserData = {};
 let dailyLimits = {ads: 0, yt: 0, spin: 0, quiz: 0};
 let currentProofId = "";
 
-// PART 1: ANTI-CHEAT
-let deviceId = localStorage.getItem('deviceId') || crypto.randomUUID();
-localStorage.setItem('deviceId', deviceId);
-document.addEventListener('contextmenu', e => e.preventDefault());
-document.addEventListener('keydown', e => { if(e.key === 'F12' || (e.ctrlKey && e.shiftKey && ['I','J','C'].includes(e.key))) e.preventDefault(); });
-if(localStorage.getItem('tabOpen') === 'true'){ alert("⚠️ Only 1 tab allowed. Close other tabs."); }
-localStorage.setItem('tabOpen', 'true');
-window.addEventListener('beforeunload', () => localStorage.setItem('tabOpen', 'false'));
-
 window.toggleDark = () => { document.body.classList.toggle('dark'); const isDark = document.body.classList.contains('dark'); localStorage.setItem('darkMode', isDark); document.querySelectorAll('.btn-dark').forEach(btn => btn.innerText = isDark? '☀️' : '🌙'); }
 if(localStorage.getItem('darkMode') === 'true'){ document.body.classList.add('dark'); }
 function showNotif(msg){ const n = document.getElementById('notification'); n.innerText = msg; n.style.display = 'block'; setTimeout(()=> n.style.display='none', 3000); }
@@ -146,17 +149,52 @@ function loadLimits(){ checkReset(); dailyLimits = JSON.parse(localStorage.getIt
 function saveLimits(){ localStorage.setItem(getLimitKey(), JSON.stringify(dailyLimits)); }
 function updateCounters(){ document.getElementById('adsCount').innerText = `${dailyLimits.ads}/10 today`; document.getElementById('ytCount').innerText = `${dailyLimits.yt}/10 today`; document.getElementById('spinCount').innerText = `${dailyLimits.spin}/1 today`; document.getElementById('quizCount').innerText = `${dailyLimits.quiz}/3 today`; document.getElementById('adsBtn').disabled = dailyLimits.ads >= 10; document.getElementById('ytBtn').disabled = dailyLimits.yt >= 10; document.getElementById('spinBtn').disabled = dailyLimits.spin >= 1; document.getElementById('quizBtn').disabled = dailyLimits.quiz >= 3; }
 
+// PART 2: COPY REF FUNCTION
+window.copyRef = () => {
+  const link = `${window.location.origin}${window.location.pathname}?ref=${auth.currentUser.uid}`;
+  document.getElementById('refLink').value = link;
+  navigator.clipboard.writeText(link);
+  showNotif("Referral link copied!");
+}
+
+// PART 2: SIGNUP WITH L1 + L2
 window.signUp = async () => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
-
-  // ANTI-CHEAT CHECK
-  const deviceCheck = await getDocs(query(collection(db, "users"), where("deviceId", "==", deviceId)));
-  if(!deviceCheck.empty) return showNotif("This device already has an account!");
+  const urlParams = new URLSearchParams(window.location.search);
+  const refId = urlParams.get('ref');
 
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(db, "users", userCredential.user.uid), { email: email, points: 50, deviceId: deviceId });
+    let referredBy = "";
+    let referredByL2 = "";
+
+    if(refId){
+      const refDoc = await getDoc(doc(db, "users", refId));
+      if(refDoc.exists()){
+        referredBy = refId;
+        referredByL2 = refDoc.data().referredBy || "";
+
+        // L1 BONUS: 10 PTS
+        await updateDoc(doc(db, "users", refId), { points: increment(10) });
+        await sendEmail(refDoc.data().email, "You earned 10 points!", `<p>Someone signed up with your link. +10 Points L1 bonus!</p>`);
+
+        // L2 BONUS: 5 PTS
+        if(referredByL2){
+          await updateDoc(doc(db, "users", referredByL2), { points: increment(5) });
+          const l2Doc = await getDoc(doc(db, "users", referredByL2));
+          await sendEmail(l2Doc.data().email, "You earned 5 points!", `<p>Your referral's friend joined. +5 Points L2 bonus!</p>`);
+        }
+      }
+    }
+
+    await setDoc(doc(db, "users", userCredential.user.uid), {
+      email: email,
+      points: 50,
+      referredBy: referredBy,
+      referredByL2: referredByL2
+    });
+
     await sendEmail(email, "Welcome to EarnKwaCha!", `<p>Account created! You got 50 free points.</p>`);
     showNotif("Account created! +50 Points");
   } catch (error) { showNotif(error.message); }
@@ -199,7 +237,7 @@ window.uploadProof = async () => {
   const wDoc = await getDoc(doc(db, "withdrawals", currentProofId)); await sendEmail(wDoc.data().email, "Payment Sent!", `<p>Your ${wDoc.data().mwk} MWK has been paid. Check your account.</p>`); showNotif("Marked as Paid + Email Sent"); closeProof(); loadAllWithdrawals();
 }
 async function loadLeaderboard(){ const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10)); const querySnapshot = await getDocs(q); let html = ""; let rank = 1; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let className = ""; if(rank===1) className="top1"; if(rank===2) className="top2"; if(rank===3) className="top3"; html += `<div class="leaderboard-row ${className}"><span>#${rank} ${data.email}</span><span>${data.points || 0} pts</span></div>`; rank++; }); document.getElementById("leaderboardList").innerHTML = html || "No users yet"; }
-async function loadAllUsers(){ const querySnapshot = await getDocs(collection(db, "users")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); const isAdmin = data.email === ADMIN_EMAIL? "Yes" : "No"; const balance = data.points || 0; const ref = data.referredBy? "Yes" : "No"; html += `<tr><td>${data.email}</td><td>${balance} pts</td><td>${ref}</td><td>${data.deviceId?.slice(0,8) || 'N/A'}</td><td>${isAdmin}</td><td><button class="btn btn-green btn-small" onclick="addPoints('${docSnap.id}')">+100</button></td></tr>`; }); document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=6>No users</td></tr>"; }
+async function loadAllUsers(){ const querySnapshot = await getDocs(collection(db, "users")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); const isAdmin = data.email === ADMIN_EMAIL? "Yes" : "No"; const balance = data.points || 0; const ref = data.referredBy? "Yes" : "No"; html += `<tr><td>${data.email}</td><td>${balance} pts</td><td>${ref}</td><td>${isAdmin}</td><td><button class="btn btn-green btn-small" onclick="addPoints('${docSnap.id}')">+100</button></td></tr>`; }); document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=5>No users</td></tr>"; }
 async function loadAllWithdrawals(){ const querySnapshot = await getDocs(collection(db, "withdrawals")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let statusClass = "status-pending"; if(data.status==='approved') statusClass="status-approved"; if(data.status==='rejected') statusClass="status-rejected"; if(data.status==='paid') statusClass="status-paid"; let actions = `<span class="status-badge ${statusClass}">${data.status}</span>`; if(data.status==='pending'){ actions = `<button class="btn btn-green btn-small" onclick="approveWithdraw('${docSnap.id}')">Approve</button><button class="btn btn-red btn-small" onclick="rejectWithdraw('${docSnap.id}')">Reject</button>`; } if(data.status==='approved'){ actions = `<button class="btn btn-purple btn-small" onclick="openProof('${docSnap.id}','${data.email}',${data.mwk})">Mark Paid</button>`; } if(data.proofUrl){ actions += ` <img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">`; } html += `<tr><td>${data.email}</td><td>${data.method}</td><td>${data.account}</td><td>${data.amount}</td><td>${data.mwk} MWK</td><td><span class="status-badge ${statusClass}">${data.status}</span></td><td>${actions}</td></tr>`; }); document.querySelector("#withdrawTable tbody").innerHTML = html || "<tr><td colspan=7>No withdrawals</td></tr>"; }
 
 onAuthStateChanged(auth, (user) => {

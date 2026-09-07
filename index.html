@@ -87,7 +87,7 @@ body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 
 <div class="container" id="adminPanel"><h1>Admin Panel 🔐</h1><button class="btn btn-blue" onclick="hideAdmin()">Back to Dashboard</button>
 <div class="tab"><button class="tablinks active" id="usersTab" onclick="openTab('Users')">Users</button><button class="tablinks" id="withdrawTab" onclick="openTab('Withdrawals')">Withdrawals</button><button class="tablinks" id="announceTab" onclick="openTab('Announcement')">Announcement</button></div>
-<div id="Users" class="tabcontent"><h3>All Users</h3><table id="usersTable"><thead><tr><th>Email</th><th>Balance</th><th>Referred</th><th>Admin</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+<div id="Users" class="tabcontent"><h3>All Users</h3><table id="usersTable"><thead><tr><th>Email</th><th>Balance</th><th>Referred</th><th>Device ID</th><th>Admin</th><th>Action</th></tr></thead><tbody></tbody></table></div>
 <div id="Withdrawals" class="tabcontent" style="display:none;"><h3>All Withdrawals</h3><table id="withdrawTable"><thead><tr><th>Email</th><th>Method</th><th>Account</th><th>Points</th><th>MWK</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table></div>
 <div id="Announcement" class="tabcontent" style="display:none;"><h3>Post Announcement</h3><textarea id="announceInput" rows="3" placeholder="Type announcement message here..."></textarea><button class="btn btn-orange" onclick="postAnnouncement()">Post Announcement</button><button class="btn btn-red" onclick="clearAnnouncement()">Clear Announcement</button><p style="margin-top:10px; font-size:12px;">Current: <span id="currentAnnounce">None</span></p></div>
 </div>
@@ -121,6 +121,10 @@ let currentUserData = {};
 let dailyLimits = {ads: 0, yt: 0, spin: 0, quiz: 0};
 let currentProofId = "";
 
+// PART 4: DEVICE LOCK
+let deviceId = localStorage.getItem('deviceId') || crypto.randomUUID();
+localStorage.setItem('deviceId', deviceId);
+
 window.toggleDark = () => { document.body.classList.toggle('dark'); const isDark = document.body.classList.contains('dark'); localStorage.setItem('darkMode', isDark); document.querySelectorAll('.btn-dark').forEach(btn => btn.innerText = isDark? '☀️' : '🌙'); }
 if(localStorage.getItem('darkMode') === 'true'){ document.body.classList.add('dark'); }
 function showNotif(msg){ const n = document.getElementById('notification'); n.innerText = msg; n.style.display = 'block'; setTimeout(()=> n.style.display='none', 3000); }
@@ -141,17 +145,23 @@ function updateCounters(){ document.getElementById('adsCount').innerText = `${da
 
 window.copyRef = () => { const link = `${window.location.origin}${window.location.pathname}?ref=${auth.currentUser.uid}`; document.getElementById('refLink').value = link; navigator.clipboard.writeText(link); showNotif("Referral link copied!"); }
 
+// PART 4: SIGNUP WITH DEVICE LOCK CHECK
 window.signUp = async () => {
   const email = document.getElementById("email").value; const password = document.getElementById("password").value; const urlParams = new URLSearchParams(window.location.search); const refId = urlParams.get('ref');
+
+  // DEVICE LOCK CHECK
+  const deviceCheck = await getDocs(query(collection(db, "users"), where("deviceId", "==", deviceId)));
+  if(!deviceCheck.empty) return showNotif("This device already has an account!");
+
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password); let referredBy = ""; let referredByL2 = "";
-    if(refId){ const refDoc = await getDoc(doc(db, "users", refId)); if(refDoc.exists()){ referredBy = refId; referredByL2 = refDoc.data().referredBy || ""; await updateDoc(doc(db, "users", refId), { points: increment(10) }); await sendEmail(refDoc.data().email, "You earned 10 points!", `<p>Someone signed up with your link. +10 Points L1 bonus!</p>`); if(referredByL2){ await updateDoc(doc(db, "users", referredByL2), { points: increment(5) }); const l2Doc = await getDoc(doc(db, "users", referredByL2)); await sendEmail(l2Doc.data().email, "You earned 5 points!", `<p>Your referral's friend joined. +5 Points L2 bonus!</p>`); } } }
-    await setDoc(doc(db, "users", userCredential.user.uid), { email: email, points: 50, referredBy: referredBy, referredByL2: referredByL2 });
+    if(refId){ const refDoc = await getDoc(doc(db, "users", refId)); if(refDoc.exists()){ referredBy = refId; referredByL2 = refDoc.data().referredBy || ""; await updateDoc(doc(db, "users", refId), { points: increment(10) }); await sendEmail(refDoc.data().email, "You earned 10 points!", `<p>Someone signed up with your link. +10 Points L1 bonus!</p>`); if(referredByL2){ await updateDoc(doc(db, "users", referredByL2), { points: increment(5) }); const l2Doc = await getDoc(doc(db, "users", referredByL2)); await sendEmail(l2Doc.data().email, "You earned 5 points!", `<p>Your referral's friend joined. +5 Points L2 bonus!</p>`); } }
+    await setDoc(doc(db, "users", userCredential.user.uid), { email: email, points: 50, referredBy: referredBy, referredByL2: referredByL2, deviceId: deviceId });
     await sendEmail(email, "Welcome to EarnKwaCha!", `<p>Account created! You got 50 free points.</p>`); showNotif("Account created! +50 Points");
   } catch (error) { showNotif(error.message); }
 }
 
-window.login = async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await signInWithEmailAndPassword(auth, email, password); if(email === ADMIN_EMAIL){ document.getElementById('adminPassModal').style.display = 'flex'; } } catch (error) { showNotif(error.message); } }
+window.login = async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await signInWithEmailAndPassword(auth, email, password); if(email === ADMIN_EMAIL){ document.getElementById('adminPassModal').style.display = 'flex'; } catch (error) { showNotif(error.message); } }
 window.checkAdminPass = () => { const pass = document.getElementById('adminPassInput').value; if(pass === ADMIN_PASSWORD){ closeAdminPass(); showNotif("Admin access granted"); } else { showNotif("Wrong admin password"); signOut(auth); } }
 window.closeAdminPass = () => { document.getElementById('adminPassModal').style.display = 'none'; }
 window.logout = () => { signOut(auth); }
@@ -166,21 +176,7 @@ window.spin = async () => { if(dailyLimits.spin>=1) return showNotif("You alread
 window.quizGame = async () => { if(dailyLimits.quiz>=3) return showNotif("Limit: 3 quizzes per day"); const questions = [{q: "5 + 7?", a: "12"},{q: "Capital of Malawi?", a: "Lilongwe"},{q: "2 + 2?", a: "4"}]; const randomQ = questions[Math.floor(Math.random() * questions.length)]; const answer = prompt(`Question: ${randomQ.q}`); if(answer && answer.toLowerCase().trim() == randomQ.a.toLowerCase()){ const user = auth.currentUser; await updateDoc(doc(db, "users", user.uid), { points: increment(10) }); dailyLimits.quiz++; saveLimits(); updateCounters(); showNotif("Correct! +10 Points") } else { showNotif(`Wrong! Answer: ${randomQ.a}`) } }
 window.openWithdraw = () => { document.getElementById('withdrawModal').style.display = 'flex'; }
 window.closeWithdraw = () => { document.getElementById('withdrawModal').style.display = 'none'; }
-
-// PART 3: AUTO DEDUCT
-window.requestWithdraw = async () => {
-  const method = document.getElementById("withdrawMethod").value; const account = document.getElementById("accountNumber").value; const amount = parseInt(document.getElementById("withdrawAmount").value); const user = auth.currentUser;
-  if (!account ||!amount) return showNotif("Fill all fields"); if (amount > currentUserData.points) return showNotif("Not enough points"); if (amount < 5000) return showNotif("Min withdraw is 5000 Points");
-
-  // AUTO DEDUCT POINTS IMMEDIATELY
-  await updateDoc(doc(db, "users", user.uid), { points: increment(-amount) });
-
-  // SAVE WITHDRAW REQUEST
-  await addDoc(collection(db, "withdrawals"), { userId: user.uid, email: currentUserData.email, method, account, amount, mwk: amount, status: "pending", proofUrl: "", createdAt: serverTimestamp() });
-
-  showNotif(`${amount} Points deducted. Withdraw request submitted`); closeWithdraw();
-}
-
+window.requestWithdraw = async () => { const method = document.getElementById("withdrawMethod").value; const account = document.getElementById("accountNumber").value; const amount = parseInt(document.getElementById("withdrawAmount").value); const user = auth.currentUser; if (!account ||!amount) return showNotif("Fill all fields"); if (amount > currentUserData.points) return showNotif("Not enough points"); if (amount < 5000) return showNotif("Min withdraw is 5000 Points"); await updateDoc(doc(db, "users", user.uid), { points: increment(-amount) }); await addDoc(collection(db, "withdrawals"), { userId: user.uid, email: currentUserData.email, method, account, amount, mwk: amount, status: "pending", proofUrl: "", createdAt: serverTimestamp() }); showNotif(`${amount} Points deducted. Withdraw request submitted`); closeWithdraw(); }
 window.openTab = (tabName) => { document.querySelectorAll('.tabcontent').forEach(t => t.style.display='none'); document.querySelectorAll('.tablinks').forEach(b => b.classList.remove('active')); document.getElementById(tabName).style.display='block'; document.getElementById(tabName==='Users'?'usersTab':tabName==='Withdrawals'?'withdrawTab':'announceTab').classList.add('active'); if(tabName==='Users') loadAllUsers(); if(tabName==='Withdrawals') loadAllWithdrawals(); }
 window.showAdmin = async () => { document.getElementById('dashboard').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; openTab('Users'); }
 window.hideAdmin = () => { document.getElementById('adminPanel').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; }
@@ -191,7 +187,7 @@ window.openProof = (withdrawId, email, amount) => { currentProofId = withdrawId;
 window.closeProof = () => { document.getElementById('proofModal').style.display = 'none'; }
 window.uploadProof = async () => { const file = document.getElementById('proofFile').files[0]; if(!file) return showNotif("Select an image first"); showNotif("Uploading proof..."); const storageRef = ref(storage, `withdraw_proofs/${currentProofId}_${Date.now()}.jpg`); const snapshot = await uploadBytes(storageRef, file); const url = await getDownloadURL(snapshot.ref); await updateDoc(doc(db, "withdrawals", currentProofId), { status: "paid", proofUrl: url }); showNotif("Marked as Paid"); closeProof(); loadAllWithdrawals(); }
 async function loadLeaderboard(){ const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10)); const querySnapshot = await getDocs(q); let html = ""; let rank = 1; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let className = ""; if(rank===1) className="top1"; if(rank===2) className="top2"; if(rank===3) className="top3"; html += `<div class="leaderboard-row ${className}"><span>#${rank} ${data.email}</span><span>${data.points || 0} pts</span></div>`; rank++; }); document.getElementById("leaderboardList").innerHTML = html || "No users yet"; }
-async function loadAllUsers(){ const querySnapshot = await getDocs(collection(db, "users")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); const isAdmin = data.email === ADMIN_EMAIL? "Yes" : "No"; const balance = data.points || 0; const ref = data.referredBy? "Yes" : "No"; html += `<tr><td>${data.email}</td><td>${balance} pts</td><td>${ref}</td><td>${isAdmin}</td><td><button class="btn btn-green btn-small" onclick="addPoints('${docSnap.id}')">+100</button></td></tr>`; }); document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=5>No users</td></tr>"; }
+async function loadAllUsers(){ const querySnapshot = await getDocs(collection(db, "users")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); const isAdmin = data.email === ADMIN_EMAIL? "Yes" : "No"; const balance = data.points || 0; const ref = data.referredBy? "Yes" : "No"; html += `<tr><td>${data.email}</td><td>${balance} pts</td><td>${ref}</td><td>${data.deviceId?.slice(0,8) || 'N/A'}</td><td>${isAdmin}</td><td><button class="btn btn-green btn-small" onclick="addPoints('${docSnap.id}')">+100</button></td></tr>`; }); document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=6>No users</td></tr>"; }
 async function loadAllWithdrawals(){ const querySnapshot = await getDocs(collection(db, "withdrawals")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let statusClass = "status-pending"; if(data.status==='approved') statusClass="status-approved"; if(data.status==='rejected') statusClass="status-rejected"; if(data.status==='paid') statusClass="status-paid"; let actions = `<span class="status-badge ${statusClass}">${data.status}</span>`; if(data.status==='pending'){ actions = `<button class="btn btn-green btn-small" onclick="approveWithdraw('${docSnap.id}')">Approve</button><button class="btn btn-red btn-small" onclick="rejectWithdraw('${docSnap.id}')">Reject</button>`; } if(data.status==='approved'){ actions = `<button class="btn btn-purple btn-small" onclick="openProof('${docSnap.id}','${data.email}',${data.mwk})">Mark Paid</button>`; } if(data.proofUrl){ actions += ` <img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">`; } html += `<tr><td>${data.email}</td><td>${data.method}</td><td>${data.account}</td><td>${data.amount}</td><td>${data.mwk} MWK</td><td><span class="status-badge ${statusClass}">${data.status}</span></td><td>${actions}</td></tr>`; }); document.querySelector("#withdrawTable tbody").innerHTML = html || "<tr><td colspan=7>No withdrawals</td></tr>"; }
 
 onAuthStateChanged(auth, (user) => {

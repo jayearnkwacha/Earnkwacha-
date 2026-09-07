@@ -68,7 +68,7 @@ body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 <div id="announcementBanner" class="announcement" style="display:none;"><span id="announcementText">📢 </span><button onclick="closeAnnouncement()">×</button></div>
 <h2>Dashboard</h2><p style="text-align:center;" id="welcome">Loading...</p><p class="timer" id="resetTimer">Resets in: 00:00:00</p>
 <div class="balance-box"><p>Your Balance</p><div class="balance" id="points">0 Points</div></div>
-<div class="ref-box"><h4>💰 Referral Program L1 + L2</h4><p><b>Level 1: 10 Points</b> | <b>Level 2: 5 Points</b></p><input type="text" id="refLink" readonly placeholder="Your link will appear here"><button class="btn btn-green btn-small" onclick="copyRef()">Copy Link</button></div>
+<div class="ref-box"><h4>💰 Referral Program L1 + L2</h4><p><b>Level 1: 10 Points Instant</b> | <b>Level 2: 5 Points After 1 Ad - Max 20</b></p><input type="text" id="refLink" readonly placeholder="Your link will appear here"><button class="btn btn-green btn-small" onclick="copyRef()">Copy Link</button></div>
 <button class="btn btn-orange" onclick="openWithdraw()">Request Withdraw</button>
 <button class="btn btn-blue" onclick="showUserWithdraws()">My Withdrawals</button>
 <button class="btn btn-green" onclick="showTasks()">View Tasks</button>
@@ -87,7 +87,7 @@ body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 
 <div class="container" id="adminPanel"><h1>Admin Panel 🔐</h1><button class="btn btn-blue" onclick="hideAdmin()">Back to Dashboard</button>
 <div class="tab"><button class="tablinks active" id="usersTab" onclick="openTab('Users')">Users</button><button class="tablinks" id="withdrawTab" onclick="openTab('Withdrawals')">Withdrawals</button><button class="tablinks" id="announceTab" onclick="openTab('Announcement')">Announcement</button></div>
-<div id="Users" class="tabcontent"><h3>All Users</h3><table id="usersTable"><thead><tr><th>Email</th><th>Balance</th><th>Referred</th><th>Admin</th><th>Action</th></tr></thead><tbody></tbody></table></div>
+<div id="Users" class="tabcontent"><h3>All Users</h3><table id="usersTable"><thead><tr><th>Email</th><th>Balance</th><th>Referred</th><th>L2 Status</th><th>Admin</th><th>Action</th></tr></thead><tbody></tbody></table></div>
 <div id="Withdrawals" class="tabcontent" style="display:none;"><h3>All Withdrawals</h3><table id="withdrawTable"><thead><tr><th>Email</th><th>Method</th><th>Account</th><th>Points</th><th>MWK</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table></div>
 <div id="Announcement" class="tabcontent" style="display:none;"><h3>Post Announcement</h3><textarea id="announceInput" rows="3" placeholder="Type announcement message here..."></textarea><button class="btn btn-orange" onclick="postAnnouncement()">Post Announcement</button><button class="btn btn-red" onclick="clearAnnouncement()">Clear Announcement</button><p style="margin-top:10px; font-size:12px;">Current: <span id="currentAnnounce">None</span></p></div>
 </div>
@@ -145,8 +145,8 @@ window.signUp = async () => {
   const email = document.getElementById("email").value; const password = document.getElementById("password").value; const urlParams = new URLSearchParams(window.location.search); const refId = urlParams.get('ref');
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password); let referredBy = ""; let referredByL2 = "";
-    if(refId){ const refDoc = await getDoc(doc(db, "users", refId)); if(refDoc.exists()){ referredBy = refId; referredByL2 = refDoc.data().referredBy || ""; await updateDoc(doc(db, "users", refId), { points: increment(10) }); await sendEmail(refDoc.data().email, "You earned 10 points!", `<p>Someone signed up with your link. +10 Points L1 bonus!</p>`); if(referredByL2){ await updateDoc(doc(db, "users", referredByL2), { points: increment(5) }); const l2Doc = await getDoc(doc(db, "users", referredByL2)); await sendEmail(l2Doc.data().email, "You earned 5 points!", `<p>Your referral's friend joined. +5 Points L2 bonus!</p>`); } } }
-    await setDoc(doc(db, "users", userCredential.user.uid), { email: email, points: 50, referredBy: referredBy, referredByL2: referredByL2 });
+    if(refId){ const refDoc = await getDoc(doc(db, "users", refId)); if(refDoc.exists()){ referredBy = refId; referredByL2 = refDoc.data().referredBy || ""; await updateDoc(doc(db, "users", refId), { points: increment(10) }); await sendEmail(refDoc.data().email, "You earned 10 points!", `<p>Someone signed up with your link. +10 Points L1 bonus!</p>`); } }
+    await setDoc(doc(db, "users", userCredential.user.uid), { email: email, points: 50, referredBy: referredBy, referredByL2: referredByL2, l2Paid: false, l2ReferralCount: 0 });
     await sendEmail(email, "Welcome to EarnKwaCha!", `<p>Account created! You got 50 free points.</p>`); showNotif("Account created! +50 Points");
   } catch (error) { showNotif(error.message); }
 }
@@ -161,23 +161,36 @@ window.showLeaderboard = async () => { document.getElementById("tasksSection").s
 window.hideLeaderboard = () => { document.getElementById("leaderboardSection").style.display = "none"; }
 window.showUserWithdraws = async () => { document.getElementById("tasksSection").style.display = "none"; document.getElementById("leaderboardSection").style.display = "none"; document.getElementById("userWithdraws").style.display = "block"; const q = query(collection(db, "withdrawals"), where("userId", "==", auth.currentUser.uid), orderBy("createdAt", "desc")); const querySnapshot = await getDocs(q); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let proof = data.proofUrl? `<img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">` : "-"; html += `<tr><td>${new Date(data.createdAt?.seconds*1000).toLocaleDateString()}</td><td>${data.amount}</td><td>${data.method}</td><td>${data.status}</td><td>${proof}</td></tr>`; }); document.querySelector("#userWithdrawTable tbody").innerHTML = html || "<tr><td colspan=5>No withdrawals</td></tr>"; }
 window.hideUserWithdraws = () => { document.getElementById("userWithdraws").style.display = "none"; }
-window.addTaskPoints = async (type, pts) => { const user = auth.currentUser; if(!user) return; await updateDoc(doc(db, "users", user.uid), { points: increment(pts) }); dailyLimits[type]++; saveLimits(); updateCounters(); showNotif(`+${pts} Points added!`); }
+
+window.addTaskPoints = async (type, pts) => {
+  const user = auth.currentUser; if(!user) return;
+  const userDocRef = doc(db, "users", user.uid);
+  const userData = (await getDoc(userDocRef)).data();
+  await updateDoc(userDocRef, { points: increment(pts) });
+  dailyLimits[type]++; saveLimits(); updateCounters(); showNotif(`+${pts} Points added!`);
+
+  // L2 LOGIC: Pay 5pts to inviter only after first ad watch
+  if(type === 'ads' && dailyLimits.ads === 1 && userData.referredByL2 &&!userData.l2Paid){
+    const l2Ref = doc(db, "users", userData.referredByL2); const l2Data = (await getDoc(l2Ref)).data(); let l2Count = l2Data.l2ReferralCount || 0;
+    if(l2Count < 20){
+      await updateDoc(l2Ref, { points: increment(5), l2ReferralCount: increment(1) });
+      await updateDoc(userDocRef, { l2Paid: true });
+      await sendEmail(l2Data.email, "L2 Bonus Earned!", `<p>Your referral completed their first ad. +5 Points. ${l2Count+1}/20</p>`);
+      showNotif(`L2 Bonus: 5pts sent to your inviter!`);
+    }
+  }
+}
+
 window.spin = async () => { if(dailyLimits.spin>=1) return showNotif("You already spun today"); const pts = Math.floor(Math.random() * 6); const user = auth.currentUser; await updateDoc(doc(db, "users", user.uid), { points: increment(pts) }); dailyLimits.spin++; saveLimits(); updateCounters(); showNotif(`You won ${pts} Points! 🎉`); }
 window.quizGame = async () => { if(dailyLimits.quiz>=3) return showNotif("Limit: 3 quizzes per day"); const questions = [{q: "5 + 7?", a: "12"},{q: "Capital of Malawi?", a: "Lilongwe"},{q: "2 + 2?", a: "4"}]; const randomQ = questions[Math.floor(Math.random() * questions.length)]; const answer = prompt(`Question: ${randomQ.q}`); if(answer && answer.toLowerCase().trim() == randomQ.a.toLowerCase()){ const user = auth.currentUser; await updateDoc(doc(db, "users", user.uid), { points: increment(10) }); dailyLimits.quiz++; saveLimits(); updateCounters(); showNotif("Correct! +10 Points") } else { showNotif(`Wrong! Answer: ${randomQ.a}`) } }
 window.openWithdraw = () => { document.getElementById('withdrawModal').style.display = 'flex'; }
 window.closeWithdraw = () => { document.getElementById('withdrawModal').style.display = 'none'; }
 
-// PART 3: AUTO DEDUCT
 window.requestWithdraw = async () => {
   const method = document.getElementById("withdrawMethod").value; const account = document.getElementById("accountNumber").value; const amount = parseInt(document.getElementById("withdrawAmount").value); const user = auth.currentUser;
   if (!account ||!amount) return showNotif("Fill all fields"); if (amount > currentUserData.points) return showNotif("Not enough points"); if (amount < 5000) return showNotif("Min withdraw is 5000 Points");
-
-  // AUTO DEDUCT POINTS IMMEDIATELY
   await updateDoc(doc(db, "users", user.uid), { points: increment(-amount) });
-
-  // SAVE WITHDRAW REQUEST
   await addDoc(collection(db, "withdrawals"), { userId: user.uid, email: currentUserData.email, method, account, amount, mwk: amount, status: "pending", proofUrl: "", createdAt: serverTimestamp() });
-
   showNotif(`${amount} Points deducted. Withdraw request submitted`); closeWithdraw();
 }
 
@@ -191,7 +204,7 @@ window.openProof = (withdrawId, email, amount) => { currentProofId = withdrawId;
 window.closeProof = () => { document.getElementById('proofModal').style.display = 'none'; }
 window.uploadProof = async () => { const file = document.getElementById('proofFile').files[0]; if(!file) return showNotif("Select an image first"); showNotif("Uploading proof..."); const storageRef = ref(storage, `withdraw_proofs/${currentProofId}_${Date.now()}.jpg`); const snapshot = await uploadBytes(storageRef, file); const url = await getDownloadURL(snapshot.ref); await updateDoc(doc(db, "withdrawals", currentProofId), { status: "paid", proofUrl: url }); showNotif("Marked as Paid"); closeProof(); loadAllWithdrawals(); }
 async function loadLeaderboard(){ const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10)); const querySnapshot = await getDocs(q); let html = ""; let rank = 1; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let className = ""; if(rank===1) className="top1"; if(rank===2) className="top2"; if(rank===3) className="top3"; html += `<div class="leaderboard-row ${className}"><span>#${rank} ${data.email}</span><span>${data.points || 0} pts</span></div>`; rank++; }); document.getElementById("leaderboardList").innerHTML = html || "No users yet"; }
-async function loadAllUsers(){ const querySnapshot = await getDocs(collection(db, "users")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); const isAdmin = data.email === ADMIN_EMAIL? "Yes" : "No"; const balance = data.points || 0; const ref = data.referredBy? "Yes" : "No"; html += `<tr><td>${data.email}</td><td>${balance} pts</td><td>${ref}</td><td>${isAdmin}</td><td><button class="btn btn-green btn-small" onclick="addPoints('${docSnap.id}')">+100</button></td></tr>`; }); document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=5>No users</td></tr>"; }
+async function loadAllUsers(){ const querySnapshot = await getDocs(collection(db, "users")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); const isAdmin = data.email === ADMIN_EMAIL? "Yes" : "No"; const balance = data.points || 0; const ref = data.referredBy? "Yes" : "No"; const l2status = data.l2Paid? `Paid ${data.l2ReferralCount||0}/20` : `Pending`; html += `<tr><td>${data.email}</td><td>${balance} pts</td><td>${ref}</td><td>${l2status}</td><td>${isAdmin}</td><td><button class="btn btn-green btn-small" onclick="addPoints('${docSnap.id}')">+100</button></td></tr>`; }); document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=6>No users</td></tr>"; }
 async function loadAllWithdrawals(){ const querySnapshot = await getDocs(collection(db, "withdrawals")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let statusClass = "status-pending"; if(data.status==='approved') statusClass="status-approved"; if(data.status==='rejected') statusClass="status-rejected"; if(data.status==='paid') statusClass="status-paid"; let actions = `<span class="status-badge ${statusClass}">${data.status}</span>`; if(data.status==='pending'){ actions = `<button class="btn btn-green btn-small" onclick="approveWithdraw('${docSnap.id}')">Approve</button><button class="btn btn-red btn-small" onclick="rejectWithdraw('${docSnap.id}')">Reject</button>`; } if(data.status==='approved'){ actions = `<button class="btn btn-purple btn-small" onclick="openProof('${docSnap.id}','${data.email}',${data.mwk})">Mark Paid</button>`; } if(data.proofUrl){ actions += ` <img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">`; } html += `<tr><td>${data.email}</td><td>${data.method}</td><td>${data.account}</td><td>${data.amount}</td><td>${data.mwk} MWK</td><td><span class="status-badge ${statusClass}">${data.status}</span></td><td>${actions}</td></tr>`; }); document.querySelector("#withdrawTable tbody").innerHTML = html || "<tr><td colspan=7>No withdrawals</td></tr>"; }
 
 onAuthStateChanged(auth, (user) => {

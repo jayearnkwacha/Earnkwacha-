@@ -270,7 +270,7 @@ function showNotif(msg){
   setTimeout(()=> n.style.display='none', 3000);
 }
 
-// EMAIL FUNCTION - REQUIRES FIREBASE "TRIGGER EMAIL" EXTENSION
+// EMAIL FUNCTION
 async function sendEmail(to, subject, html){
   try {
     await addDoc(collection(db, "mail"), {
@@ -474,13 +474,15 @@ window.requestWithdraw = async () => {
   if (amount > currentUserData.points) return showNotif("Not enough points");
   if (amount < 5000) return showNotif("Min withdraw is 5000 Points");
 
+  // AUTO DEDUCT POINTS
   await addDoc(collection(db, "withdrawals"), {
     userId: user.uid, email: currentUserData.email, method, account, amount, mwk: amount,
     status: "pending", proofUrl: "", createdAt: serverTimestamp()
   });
+  await updateDoc(doc(db, "users", user.uid), { points: increment(-amount) });
 
-  await sendEmail(currentUserData.email, "Withdraw Request Received", `<p>Your request for ${amount} MWK is pending. We will review it soon.</p>`);
-  showNotif(`Withdraw request submitted`);
+  await sendEmail(currentUserData.email, "Withdraw Request Received", `<p>Your request for ${amount} MWK is pending. ${amount} Points deducted.</p>`);
+  showNotif(`Withdraw request submitted. ${amount} Points deducted`);
   closeWithdraw();
 }
 
@@ -520,9 +522,11 @@ window.approveWithdraw = async (withdrawId) => {
 window.rejectWithdraw = async (withdrawId) => {
   const wDoc = await getDoc(doc(db, "withdrawals", withdrawId));
   const data = wDoc.data();
+  // REFUND POINTS
+  await updateDoc(doc(db, "users", data.userId), { points: increment(data.amount) });
   await updateDoc(doc(db, "withdrawals", withdrawId), { status: "rejected" });
-  await sendEmail(data.email, "Withdraw Rejected", `<p>Your ${data.amount} MWK withdrawal was rejected.</p>`);
-  showNotif("Withdrawal Rejected + Email Sent");
+  await sendEmail(data.email, "Withdraw Rejected", `<p>Your ${data.amount} MWK withdrawal was rejected. Points refunded.</p>`);
+  showNotif("Withdrawal Rejected + Points Refunded + Email Sent");
   loadAllWithdrawals();
 }
 

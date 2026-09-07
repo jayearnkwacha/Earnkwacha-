@@ -16,7 +16,7 @@ input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1p
 .btn { width: 100%; padding: 14px; margin: 8px 0; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
 .btn-green { background: #28a745; }.btn-blue { background: #007bff; }.btn-orange { background: #FF9800; }
 .btn-red { background: red; }.btn-gray { background: gray; cursor: not-allowed; }.btn-purple { background: #6f42c1; }
-.btn-yellow { background: #ffc107; color: black; }.btn-dark { background: #343a40; }
+.btn-yellow { background: #ffc107; color: black; }.btn-dark { background: #343a40; }.btn-pink { background: #E1306C; } .btn-facebook { background: #1877F2; }
 .btn-small { padding: 6px 12px; font-size: 14px; width: auto; margin: 2px; }
 .balance-box { text-align: center; margin: 20px 0; padding: 20px; background: #e8f5e9; border-radius: 10px; }
 body.dark.balance-box { background: #0f2e13; }
@@ -80,6 +80,9 @@ body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 <div id="tasksSection"><h3 class="section-title">Available Tasks <span>Resets Daily</span></h3>
 <div class="task"><div><b>Watch Ads - 8 Points</b><br><span class="counter" id="adsCount">0/10 today</span></div><button id="adsBtn" onclick="addTaskPoints('ads', 8)">Watch</button></div>
 <div class="task"><div><b>Watch YouTube - 10 Points</b><br><span class="counter" id="ytCount">0/10 today</span></div><button id="ytBtn" onclick="addTaskPoints('yt', 10)">Watch</button></div>
+<div class="task"><div><b>Subscribe YouTube - 20 Points</b><br><span class="counter" id="subCount">0/1 today</span></div><button id="subBtn" class="btn-red" onclick="openSocialTask('https://youtube.com/@YourChannel', 'sub', 20)">Subscribe</button></div>
+<div class="task"><div><b>Follow TikTok - 20 Points</b><br><span class="counter" id="ttCount">0/1 today</span></div><button id="ttBtn" class="btn-pink" onclick="openSocialTask('https://tiktok.com/@YourTikTok', 'tt', 20)">Follow</button></div>
+<div class="task"><div><b>Follow Facebook - 20 Points</b><br><span class="counter" id="fbCount">0/1 today</span></div><button id="fbBtn" class="btn-facebook" onclick="openSocialTask('https://facebook.com/YourPage', 'fb', 20)">Follow</button></div>
 <div class="task"><div><b>Spin & Win - 0-5 Points</b><br><span class="counter" id="spinCount">0/1 today</span></div><button id="spinBtn" onclick="spin()">Spin</button></div>
 <div class="task"><div><b>Quick Quiz - 10 Points</b><br><span class="counter" id="quizCount">0/3 today</span></div><button id="quizBtn" onclick="quizGame()">Play</button></div>
 <button class="btn btn-red" onclick="hideTasks()">Close Tasks</button></div>
@@ -118,7 +121,7 @@ const storage = getStorage(app);
 const ADMIN_EMAIL = "kellybkenani@gmail.com";
 const ADMIN_PASSWORD = "0909kelly";
 let currentUserData = {};
-let dailyLimits = {ads: 0, yt: 0, spin: 0, quiz: 0};
+let dailyLimits = {ads: 0, yt: 0, spin: 0, quiz: 0, sub: 0, tt: 0, fb: 0};
 let currentProofId = "";
 
 window.toggleDark = () => { document.body.classList.toggle('dark'); const isDark = document.body.classList.contains('dark'); localStorage.setItem('darkMode', isDark); document.querySelectorAll('.btn-dark').forEach(btn => btn.innerText = isDark? '☀️' : '🌙'); }
@@ -131,13 +134,13 @@ window.clearAnnouncement = async () => { await updateDoc(doc(db, "settings", "an
 function loadAnnouncement(){ onSnapshot(doc(db, "settings", "announcement"), (docSnap) => { if(docSnap.exists() && docSnap.data().active){ document.getElementById('announcementBanner').style.display = 'flex'; document.getElementById('announcementText').innerText = "📢 " + docSnap.data().text; document.getElementById('currentAnnounce').innerText = docSnap.data().text; } else { document.getElementById('announcementBanner').style.display = 'none'; document.getElementById('currentAnnounce').innerText = "None"; } }); }
 window.closeAnnouncement = () => { document.getElementById('announcementBanner').style.display = 'none'; }
 
-function checkReset(){ const today = new Date().toLocaleDateString(); const lastReset = localStorage.getItem('lastResetDate'); if(lastReset!== today){ dailyLimits = {ads: 0, yt: 0, spin: 0, quiz: 0}; saveLimits(); localStorage.setItem('lastResetDate', today); showNotif("Daily tasks reset! 🔄"); } updateTimer(); }
+function checkReset(){ const today = new Date().toLocaleDateString(); const lastReset = localStorage.getItem('lastResetDate'); if(lastReset!== today){ dailyLimits = {ads: 0, yt: 0, spin: 0, quiz: 0, sub: 0, tt: 0, fb: 0}; saveLimits(); localStorage.setItem('lastResetDate', today); showNotif("Daily tasks reset! 🔄"); } updateTimer(); }
 function updateTimer(){ const now = new Date(); const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1); tomorrow.setHours(0,0,0,0); const diff = tomorrow - now; const h = Math.floor(diff / 1000 / 60 / 60); const m = Math.floor(diff / 1000 / 60) % 60; const s = Math.floor(diff / 1000) % 60; document.getElementById('resetTimer').innerText = `Resets in: ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
 setInterval(updateTimer, 1000);
 function getLimitKey() { return `limits_${auth.currentUser?.uid}`; }
-function loadLimits(){ checkReset(); dailyLimits = JSON.parse(localStorage.getItem(getLimitKey())) || {ads: 0, yt: 0, spin: 0, quiz: 0}; updateCounters(); }
+function loadLimits(){ checkReset(); dailyLimits = JSON.parse(localStorage.getItem(getLimitKey())) || {ads: 0, yt: 0, spin: 0, quiz: 0, sub: 0, tt: 0, fb: 0}; updateCounters(); }
 function saveLimits(){ localStorage.setItem(getLimitKey(), JSON.stringify(dailyLimits)); }
-function updateCounters(){ document.getElementById('adsCount').innerText = `${dailyLimits.ads}/10 today`; document.getElementById('ytCount').innerText = `${dailyLimits.yt}/10 today`; document.getElementById('spinCount').innerText = `${dailyLimits.spin}/1 today`; document.getElementById('quizCount').innerText = `${dailyLimits.quiz}/3 today`; document.getElementById('adsBtn').disabled = dailyLimits.ads >= 10; document.getElementById('ytBtn').disabled = dailyLimits.yt >= 10; document.getElementById('spinBtn').disabled = dailyLimits.spin >= 1; document.getElementById('quizBtn').disabled = dailyLimits.quiz >= 3; }
+function updateCounters(){ document.getElementById('adsCount').innerText = `${dailyLimits.ads}/10 today`; document.getElementById('ytCount').innerText = `${dailyLimits.yt}/10 today`; document.getElementById('subCount').innerText = `${dailyLimits.sub}/1 today`; document.getElementById('ttCount').innerText = `${dailyLimits.tt}/1 today`; document.getElementById('fbCount').innerText = `${dailyLimits.fb}/1 today`; document.getElementById('spinCount').innerText = `${dailyLimits.spin}/1 today`; document.getElementById('quizCount').innerText = `${dailyLimits.quiz}/3 today`; document.getElementById('adsBtn').disabled = dailyLimits.ads >= 10; document.getElementById('ytBtn').disabled = dailyLimits.yt >= 10; document.getElementById('subBtn').disabled = dailyLimits.sub >= 1; document.getElementById('ttBtn').disabled = dailyLimits.tt >= 1; document.getElementById('fbBtn').disabled = dailyLimits.fb >= 1; document.getElementById('spinBtn').disabled = dailyLimits.spin >= 1; document.getElementById('quizBtn').disabled = dailyLimits.quiz >= 3; }
 
 window.copyRef = () => { const link = `${window.location.origin}${window.location.pathname}?ref=${auth.currentUser.uid}`; document.getElementById('refLink').value = link; navigator.clipboard.writeText(link); showNotif("Referral link copied!"); }
 
@@ -151,7 +154,7 @@ window.signUp = async () => {
   } catch (error) { showNotif(error.message); }
 }
 
-window.login = async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await signInWithEmailAndPassword(auth, email, password); if(email === ADMIN_EMAIL){ document.getElementById('adminPassModal').style.display = 'flex'; } } catch (error) { showNotif(error.message); } }
+window.login = async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await signInWithEmailAndPassword(auth, email, password); if(email === ADMIN_EMAIL){ document.getElementById('adminPassModal').style.display = 'flex'; } catch (error) { showNotif(error.message); } }
 window.checkAdminPass = () => { const pass = document.getElementById('adminPassInput').value; if(pass === ADMIN_PASSWORD){ closeAdminPass(); showNotif("Admin access granted"); } else { showNotif("Wrong admin password"); signOut(auth); } }
 window.closeAdminPass = () => { document.getElementById('adminPassModal').style.display = 'none'; }
 window.logout = () => { signOut(auth); }
@@ -162,6 +165,16 @@ window.hideLeaderboard = () => { document.getElementById("leaderboardSection").s
 window.showUserWithdraws = async () => { document.getElementById("tasksSection").style.display = "none"; document.getElementById("leaderboardSection").style.display = "none"; document.getElementById("userWithdraws").style.display = "block"; const q = query(collection(db, "withdrawals"), where("userId", "==", auth.currentUser.uid), orderBy("createdAt", "desc")); const querySnapshot = await getDocs(q); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let proof = data.proofUrl? `<img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">` : "-"; html += `<tr><td>${new Date(data.createdAt?.seconds*1000).toLocaleDateString()}</td><td>${data.amount}</td><td>${data.method}</td><td>${data.status}</td><td>${proof}</td></tr>`; }); document.querySelector("#userWithdrawTable tbody").innerHTML = html || "<tr><td colspan=5>No withdrawals</td></tr>"; }
 window.hideUserWithdraws = () => { document.getElementById("userWithdraws").style.display = "none"; }
 
+window.openSocialTask = (url, type, pts) => {
+  if(dailyLimits[type] >= 1) return showNotif("You already completed this today");
+  window.open(url, '_blank');
+  setTimeout(() => {
+    if(confirm("Did you subscribe/follow? Click OK to claim 20 points")){
+      addTaskPoints(type, pts);
+    }
+  }, 3000);
+}
+
 window.addTaskPoints = async (type, pts) => {
   const user = auth.currentUser; if(!user) return;
   const userDocRef = doc(db, "users", user.uid);
@@ -169,7 +182,6 @@ window.addTaskPoints = async (type, pts) => {
   await updateDoc(userDocRef, { points: increment(pts) });
   dailyLimits[type]++; saveLimits(); updateCounters(); showNotif(`+${pts} Points added!`);
 
-  // L2 LOGIC: Pay 5pts to inviter only after first ad watch
   if(type === 'ads' && dailyLimits.ads === 1 && userData.referredByL2 &&!userData.l2Paid){
     const l2Ref = doc(db, "users", userData.referredByL2); const l2Data = (await getDoc(l2Ref)).data(); let l2Count = l2Data.l2ReferralCount || 0;
     if(l2Count < 20){
@@ -205,18 +217,4 @@ window.closeProof = () => { document.getElementById('proofModal').style.display 
 window.uploadProof = async () => { const file = document.getElementById('proofFile').files[0]; if(!file) return showNotif("Select an image first"); showNotif("Uploading proof..."); const storageRef = ref(storage, `withdraw_proofs/${currentProofId}_${Date.now()}.jpg`); const snapshot = await uploadBytes(storageRef, file); const url = await getDownloadURL(snapshot.ref); await updateDoc(doc(db, "withdrawals", currentProofId), { status: "paid", proofUrl: url }); showNotif("Marked as Paid"); closeProof(); loadAllWithdrawals(); }
 async function loadLeaderboard(){ const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10)); const querySnapshot = await getDocs(q); let html = ""; let rank = 1; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let className = ""; if(rank===1) className="top1"; if(rank===2) className="top2"; if(rank===3) className="top3"; html += `<div class="leaderboard-row ${className}"><span>#${rank} ${data.email}</span><span>${data.points || 0} pts</span></div>`; rank++; }); document.getElementById("leaderboardList").innerHTML = html || "No users yet"; }
 async function loadAllUsers(){ const querySnapshot = await getDocs(collection(db, "users")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); const isAdmin = data.email === ADMIN_EMAIL? "Yes" : "No"; const balance = data.points || 0; const ref = data.referredBy? "Yes" : "No"; const l2status = data.l2Paid? `Paid ${data.l2ReferralCount||0}/20` : `Pending`; html += `<tr><td>${data.email}</td><td>${balance} pts</td><td>${ref}</td><td>${l2status}</td><td>${isAdmin}</td><td><button class="btn btn-green btn-small" onclick="addPoints('${docSnap.id}')">+100</button></td></tr>`; }); document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=6>No users</td></tr>"; }
-async function loadAllWithdrawals(){ const querySnapshot = await getDocs(collection(db, "withdrawals")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let statusClass = "status-pending"; if(data.status==='approved') statusClass="status-approved"; if(data.status==='rejected') statusClass="status-rejected"; if(data.status==='paid') statusClass="status-paid"; let actions = `<span class="status-badge ${statusClass}">${data.status}</span>`; if(data.status==='pending'){ actions = `<button class="btn btn-green btn-small" onclick="approveWithdraw('${docSnap.id}')">Approve</button><button class="btn btn-red btn-small" onclick="rejectWithdraw('${docSnap.id}')">Reject</button>`; } if(data.status==='approved'){ actions = `<button class="btn btn-purple btn-small" onclick="openProof('${docSnap.id}','${data.email}',${data.mwk})">Mark Paid</button>`; } if(data.proofUrl){ actions += ` <img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">`; } html += `<tr><td>${data.email}</td><td>${data.method}</td><td>${data.account}</td><td>${data.amount}</td><td>${data.mwk} MWK</td><td><span class="status-badge ${statusClass}">${data.status}</span></td><td>${actions}</td></tr>`; }); document.querySelector("#withdrawTable tbody").innerHTML = html || "<tr><td colspan=7>No withdrawals</td></tr>"; }
-
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    document.getElementById('auth').style.display = 'none'; document.getElementById('dashboard').style.display = 'block';
-    loadLimits(); loadAnnouncement();
-    onSnapshot(doc(db, "users", user.uid), (docSnap) => { if(docSnap.exists()){ currentUserData = docSnap.data(); document.getElementById("welcome").innerText = `Welcome, ${currentUserData.email}`; document.getElementById("points").innerText = `${currentUserData.points || 0} Points`; } });
-    if(user.email === ADMIN_EMAIL){ document.getElementById('adminBtn').style.display = 'block'; }
-  } else {
-    document.getElementById('auth').style.display = 'block'; document.getElementById('dashboard').style.display = 'none'; document.getElementById('adminPanel').style.display = 'none';
-  }
-});
-</script>
-</body>
-</html>
+async function loadAllWithdrawals(){ const querySnapshot = await getDocs(collection(db, "withdrawals")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let statusClass = "status-pending"; if(data.status==='approved') statusClass="status-approved"; if(data.status==='rejected') statusClass="status-rejected"; if(data.status==='paid') statusClass="status-paid"; let actions = `<span class="status-badge ${statusClass}">${data.status}</span>`; if(data.status==='pending'){ actions = `<button class="btn btn-green btn-small" onclick="approveWithdraw('${docSnap.id}')">Approve</button><button class="btn btn-red btn-small" onclick="rejectWithdraw('${docSnap.id}')">Reject</button>`; } if(data.status==='approved'){ actions = `<button class="btn btn-purple btn-small" onclick="openProof('${docSnap.id}','${data.email}',${data.mwk})">Mark Paid</button>`; } if(data.proofUrl){ actions += ` <img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">`; } html += `<tr><td>${data.email}</td><td>${data.method}</td><td>${data.account}</td><

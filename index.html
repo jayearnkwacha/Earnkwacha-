@@ -258,7 +258,7 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById('auth').style.display = 'none'; document.getElementById('dashboard').style.display = 'block';
     loadLimits(); loadAnnouncement();
     onSnapshot(doc(db, "users", user.uid), (docSnap) => { if(docSnap.exists()){ currentUserData = docSnap.data(); document.getElementById("welcome").innerText = `Welcome, ${currentUserData.email}`; document.getElementById("points").innerText = `${currentUserData.points || 0} Points`; } });
-    if(user.email === ADMIN_EMAIL){ document.getElementById('adminBtn').style.display = 'block'; }
+    const ADMIN_EMAIL = "youradminemail@gmail.com";  <-- put YOUR email here
   } else {
     document.getElementById('auth').style.display = 'block'; document.getElementById('dashboard').style.display = 'none'; document.getElementById('adminPanel').style.display = 'none';
   }
@@ -282,24 +282,34 @@ function openAd() {
 
 function watchAdsTask(btn) {
   btn.disabled = true;
-  btn.innerText = "Wait 10s...";
+  btn.innerHTML = "Wait 10s... <button onclick='skipAd(this)' style='margin-left:5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;'>X</button>";
   openAd(); // opens ad
-  
+
   let time = 10;
   const interval = setInterval(() => {
     time--;
-    btn.innerText = "Wait " + time + "s";
+    btn.innerHTML = "Wait " + time + "s... <button onclick='skipAd(this)' style='margin-left:5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;'>X</button>";
     if(time <= 0) {
       clearInterval(interval);
-      btn.innerText = "Watch";
-      btn.disabled = false;
-      addPoints(8); // <-- PUT YOUR FIREBASE FUNCTION HERE
+      finishAd(btn);
     }
   }, 1000);
+
+  btn.dataset.interval = interval;
 }
-</script>
-</body>
-</html>
+
+function skipAd(xBtn) {
+  const btn = xBtn.parentElement;
+  clearInterval(btn.dataset.interval);
+  finishAd(btn);
+}
+
+function finishAd(btn) {
+  btn.disabled = false;
+  btn.innerText = "Watch";
+  addPoints(8); // <-- I kept it 8 points like you had
+  alert("You earned 8 points!");
+}
 </script>
 </body>
 </html>

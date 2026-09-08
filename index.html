@@ -52,6 +52,52 @@ body.dark.announcement { background: #332b00; color: #ffeeba; border-left: 4px s
 .ref-box { background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; border: 2px dashed #007bff; }
 body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 </style>
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>EarnKwaCha 💰</h1>
+    <h2>Earn real Kwacha. Withdraw via Airtel Money</h2>
+
+    <!-- PASTE NEW BUTTON CODE HERE -->
+    <a id="bonusBtn" href="https://omg10.com/4/11749878" target="_blank" onclick="claimBonus()" 
+       style="display:inline-block; padding:16px 28px; background:#28a745; color:#87CEEB; font-size:18px; border-radius:10px; text-decoration:none; font-weight:bold; box-shadow:0 4px 10px rgba(40,167,69,0.3);">
+    CLAIM 3 POINTS 🎁
+    </a>
+    <p id="timerText" style="font-size:12px; color:gray; margin-top:8px;">Tap once per day</p>
+
+    <script>
+    // Check if user already claimed today
+    window.onload = function() {
+        let lastClaim = localStorage.getItem('lastClaimDate');
+        let today = new Date().toDateString();
+        if(lastClaim === today){ disableButton(); }
+    }
+    function claimBonus() {
+        let today = new Date().toDateString();
+        localStorage.setItem('lastClaimDate', today);
+        disableButton();
+    }
+    function disableButton() {
+        let btn = document.getElementById('bonusBtn');
+        btn.style.background = '#cccccc'; 
+        btn.style.color = '#666';
+        btn.style.boxShadow = 'none';
+        btn.style.pointerEvents = 'none';
+        btn.innerHTML = 'CLAIMED TODAY ✅';
+        updateTimer(); setInterval(updateTimer, 60000);
+    }
+    function updateTimer() {
+        let now = new Date(); let midnight = new Date(); midnight.setHours(24,0,0,0);
+        let diff = midnight - now;
+        let hours = Math.floor(diff / 1000 / 60 / 60);
+        let minutes = Math.floor(diff / 1000 / 60) % 60;
+        document.getElementById('timerText').innerHTML = `Next bonus in: ${hours}h ${minutes}m`;
+    }
+    </script>
+
+    <!-- THE REST OF YOUR PAGE: proof, tasks, etc -->
+    <div class="proof">
 </head>
 <body>
 

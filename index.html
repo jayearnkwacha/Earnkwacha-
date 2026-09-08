@@ -51,9 +51,11 @@ body.dark.announcement { background: #332b00; color: #ffeeba; border-left: 4px s
 body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 </style>
   </style>
+</head>
 <body>
   <div class="container">
-    <h2> daily bonus watch ads to  clame it</h2>
+    <h1>EarnKwaCha 💰</h1>
+    <h2>Earn real Kwacha. Withdraw via Airtel Money</h2>
 
     <!-- PASTE NEW BUTTON CODE HERE -->
     <a id="bonusBtn" href="https://omg10.com/4/11749878" target="_blank" onclick="claimBonus()" 
@@ -122,8 +124,7 @@ body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 <div id="leaderboardSection" class="leaderboard" style="display:none;"><h3>🏆 Top 10 Earners</h3><div id="leaderboardList">Loading...</div><button class="btn btn-red" onclick="hideLeaderboard()">Close</button></div>
 <div id="userWithdraws" style="display:none; margin-top:20px;"><h3>My Withdrawal History <button class="btn btn-gray btn-small" onclick="hideUserWithdraws()">Close</button></h3><table id="userWithdrawTable"><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th><th>Proof</th></tr></thead><tbody></tbody></table></div>
 <div id="tasksSection"><h3 class="section-title">Available Tasks <span>Resets Daily</span></h3>
-<div class="task"><div><b>Watch Ads - 5 Points</b><br><span class="counter" id="adsCount">0/15 today</span></div><button id="adsBtn" onclick="addTaskPoints('ads', 5)">Watch</button></div>
-
+<div class="task"><div><b>Watch Ads - 5 Points</b><br><span>0/15 today</span></div><button onclick="watchAdsTask(this)">Watch</button></div>
 <div class="task"><div><b>Watch YouTube - 10 Points</b><br><span class="counter" id="ytCount">0/10 today</span></div><button id="ytBtn" onclick="addTaskPoints('yt', 10)">Watch</button></div>
 <div class="task"><div><b>Spin & Win - 0-5 Points</b><br><span class="counter" id="spinCount">0/1 today</span></div><button id="spinBtn" onclick="spin()">Spin</button></div>
 <div class="task"><div><b>Quick Quiz - 10 Points</b><br><span class="counter" id="quizCount">0/3 today</span></div><button id="quizBtn" onclick="quizGame()">Play</button></div>
@@ -261,24 +262,15 @@ onAuthStateChanged(auth, (user) => {
   } else {
     document.getElementById('auth').style.display = 'block'; document.getElementById('dashboard').style.display = 'none'; document.getElementById('adminPanel').style.display = 'none';
   }
-});
-<script>
-// MONETAG DIRECT LINKS
+ }
+); 
+</script>
+<script>// MONETAG DIRECT LINKS
 const DIRECT_LINKS = [
   "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
   "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
   "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
   "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
   "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
 ];
 let linkIndex = 0;
@@ -305,6 +297,9 @@ function watchAdsTask(btn) {
     }
   }, 1000);
 }
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>

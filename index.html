@@ -51,11 +51,9 @@ body.dark.announcement { background: #332b00; color: #ffeeba; border-left: 4px s
 body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 </style>
   </style>
-</head>
 <body>
   <div class="container">
-    <h1>EarnKwaCha 💰</h1>
-    <h2>Earn real Kwacha. Withdraw via Airtel Money</h2>
+    <h2> daily bonus watch ads to  clame it</h2>
 
     <!-- PASTE NEW BUTTON CODE HERE -->
     <a id="bonusBtn" href="https://omg10.com/4/11749878" target="_blank" onclick="claimBonus()" 
@@ -125,49 +123,7 @@ body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 <div id="userWithdraws" style="display:none; margin-top:20px;"><h3>My Withdrawal History <button class="btn btn-gray btn-small" onclick="hideUserWithdraws()">Close</button></h3><table id="userWithdrawTable"><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th><th>Proof</th></tr></thead><tbody></tbody></table></div>
 <div id="tasksSection"><h3 class="section-title">Available Tasks <span>Resets Daily</span></h3>
 <div class="task"><div><b>Watch Ads - 5 Points</b><br><span class="counter" id="adsCount">0/15 today</span></div><button id="adsBtn" onclick="addTaskPoints('ads', 5)">Watch</button></div>
-  <script>
-// MONETAG DIRECT LINKS
-const DIRECT_LINKS = [
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-];
-let linkIndex = 0;
 
-function openAd() {
-  window.open(DIRECT_LINKS[linkIndex], '_blank');
-  linkIndex = (linkIndex + 1) % DIRECT_LINKS.length;
-}
-
-function watchAdsTask(btn) {
-  btn.disabled = true;
-  btn.innerText = "Wait 10s...";
-  openAd(); // opens ad
-  
-  let time = 10;
-  const interval = setInterval(() => {
-    time--;
-    btn.innerText = "Wait " + time + "s";
-    if(time <= 0) {
-      clearInterval(interval);
-      btn.innerText = "Watch";
-      btn.disabled = false;
-      addPoints(8); // <-- PUT YOUR FIREBASE FUNCTION HERE
-    }
-  }, 1000);
-}
 <div class="task"><div><b>Watch YouTube - 10 Points</b><br><span class="counter" id="ytCount">0/10 today</span></div><button id="ytBtn" onclick="addTaskPoints('yt', 10)">Watch</button></div>
 <div class="task"><div><b>Spin & Win - 0-5 Points</b><br><span class="counter" id="spinCount">0/1 today</span></div><button id="spinBtn" onclick="spin()">Spin</button></div>
 <div class="task"><div><b>Quick Quiz - 10 Points</b><br><span class="counter" id="quizCount">0/3 today</span></div><button id="quizBtn" onclick="quizGame()">Play</button></div>
@@ -306,6 +262,49 @@ onAuthStateChanged(auth, (user) => {
     document.getElementById('auth').style.display = 'block'; document.getElementById('dashboard').style.display = 'none'; document.getElementById('adminPanel').style.display = 'none';
   }
 });
+<script>
+// MONETAG DIRECT LINKS
+const DIRECT_LINKS = [
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
+];
+let linkIndex = 0;
+
+function openAd() {
+  window.open(DIRECT_LINKS[linkIndex], '_blank');
+  linkIndex = (linkIndex + 1) % DIRECT_LINKS.length;
+}
+
+function watchAdsTask(btn) {
+  btn.disabled = true;
+  btn.innerText = "Wait 10s...";
+  openAd(); // opens ad
+  
+  let time = 10;
+  const interval = setInterval(() => {
+    time--;
+    btn.innerText = "Wait " + time + "s";
+    if(time <= 0) {
+      clearInterval(interval);
+      btn.innerText = "Watch";
+      btn.disabled = false;
+      addPoints(8); // <-- PUT YOUR FIREBASE FUNCTION HERE
+    }
+  }, 1000);
+}
 </script>
 </body>
 </html>

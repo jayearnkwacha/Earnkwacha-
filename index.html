@@ -50,52 +50,6 @@ body.dark.announcement { background: #332b00; color: #ffeeba; border-left: 4px s
 .ref-box { background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; border: 2px dashed #007bff; }
 body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 </style>
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>EarnKwaCha 💰</h1>
-    <h2>Earn real Kwacha. Withdraw via Airtel Money</h2>
-
-    <!-- PASTE NEW BUTTON CODE HERE -->
-    <a id="bonusBtn" href="https://omg10.com/4/11749878" target="_blank" onclick="claimBonus()" 
-       style="display:inline-block; padding:16px 28px; background:#28a745; color:#87CEEB; font-size:18px; border-radius:10px; text-decoration:none; font-weight:bold; box-shadow:0 4px 10px rgba(40,167,69,0.3);">
-    CLAIM 3 POINTS 🎁
-    </a>
-    <p id="timerText" style="font-size:12px; color:gray; margin-top:8px;">Tap once per day</p>
-
-    <script>
-    // Check if user already claimed today
-    window.onload = function() {
-        let lastClaim = localStorage.getItem('lastClaimDate');
-        let today = new Date().toDateString();
-        if(lastClaim === today){ disableButton(); }
-    }
-    function claimBonus() {
-        let today = new Date().toDateString();
-        localStorage.setItem('lastClaimDate', today);
-        disableButton();
-    }
-    function disableButton() {
-        let btn = document.getElementById('bonusBtn');
-        btn.style.background = '#cccccc'; 
-        btn.style.color = '#666';
-        btn.style.boxShadow = 'none';
-        btn.style.pointerEvents = 'none';
-        btn.innerHTML = 'CLAIMED TODAY ✅';
-        updateTimer(); setInterval(updateTimer, 60000);
-    }
-    function updateTimer() {
-        let now = new Date(); let midnight = new Date(); midnight.setHours(24,0,0,0);
-        let diff = midnight - now;
-        let hours = Math.floor(diff / 1000 / 60 / 60);
-        let minutes = Math.floor(diff / 1000 / 60) % 60;
-        document.getElementById('timerText').innerHTML = `Next bonus in: ${hours}h ${minutes}m`;
-    }
-    </script>
-
-    <!-- THE REST OF YOUR PAGE: proof, tasks, etc -->
-    <div class="proof">
 </head>
 <body>
 
@@ -124,7 +78,7 @@ body.dark.ref-box { background: #001f3f; border-color: #007bff; }
 <div id="leaderboardSection" class="leaderboard" style="display:none;"><h3>🏆 Top 10 Earners</h3><div id="leaderboardList">Loading...</div><button class="btn btn-red" onclick="hideLeaderboard()">Close</button></div>
 <div id="userWithdraws" style="display:none; margin-top:20px;"><h3>My Withdrawal History <button class="btn btn-gray btn-small" onclick="hideUserWithdraws()">Close</button></h3><table id="userWithdrawTable"><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th><th>Proof</th></tr></thead><tbody></tbody></table></div>
 <div id="tasksSection"><h3 class="section-title">Available Tasks <span>Resets Daily</span></h3>
-<div class="task"><div><b>Watch Ads - 5 Points</b><br><span>0/15 today</span></div><button onclick="watchAdsTask(this)">Watch</button></div>
+<div class="task"><div><b>Watch Ads - 8 Points</b><br><span class="counter" id="adsCount">0/10 today</span></div><button id="adsBtn" onclick="addTaskPoints('ads', 8)">Watch</button></div>
 <div class="task"><div><b>Watch YouTube - 10 Points</b><br><span class="counter" id="ytCount">0/10 today</span></div><button id="ytBtn" onclick="addTaskPoints('yt', 10)">Watch</button></div>
 <div class="task"><div><b>Spin & Win - 0-5 Points</b><br><span class="counter" id="spinCount">0/1 today</span></div><button id="spinBtn" onclick="spin()">Spin</button></div>
 <div class="task"><div><b>Quick Quiz - 10 Points</b><br><span class="counter" id="quizCount">0/3 today</span></div><button id="quizBtn" onclick="quizGame()">Play</button></div>
@@ -255,61 +209,80 @@ async function loadAllWithdrawals(){ const querySnapshot = await getDocs(collect
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
-    document.getElementById('auth').style.display = 'none'; document.getElementById('dashboard').style.display = 'block';
-    loadLimits(); loadAnnouncement();
-    onSnapshot(doc(db, "users", user.uid), (docSnap) => { if(docSnap.exists()){ currentUserData = docSnap.data(); document.getElementById("welcome").innerText = `Welcome, ${currentUserData.email}`; document.getElementById("points").innerText = `${currentUserData.points || 0} Points`; } });
-    const ADMIN_EMAIL = "youradminemail@gmail.com";  <-- put YOUR email here
-  } else {
-    document.getElementById('auth').style.display = 'block'; document.getElementById('dashboard').style.display = 'none'; document.getElementById('adminPanel').style.display = 'none';
-  }
- }
-); 
-</script>
-<script>// MONETAG DIRECT LINKS
-const DIRECT_LINKS = [
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
-  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
-];
-let linkIndex = 0;
+    document.getElementById('auth').style.display = 'none'; 
+    document.getElementById('dashboard').style.display = 'block';
+    loadLimits(); 
+    loadAnnouncement();
 
-function openAd() {
-  window.open(DIRECT_LINKS[linkIndex], '_blank');
-  linkIndex = (linkIndex + 1) % DIRECT_LINKS.length;
-}
+    onSnapshot(doc(db, "users", user.uid), (docSnap) => { 
+      if(docSnap.exists()){ 
+        currentUserData = docSnap.data(); 
+        document.getElementById("welcome").innerText = `Welcome, ${currentUserData.email}`; 
+        document.getElementById("points").innerText = `${currentUserData.points || 0} Points`; 
+      } 
+    });
+
+    if(user.email === ADMIN_EMAIL){ 
+      document.getElementById('adminBtn').style.display = 'block'; 
+    }
+  } else {
+    document.getElementById('auth').style.display = 'block'; 
+    document.getElementById('dashboard').style.display = 'none'; 
+    document.getElementById('adminPanel').style.display = 'none';
+  }
+});
+
+
+// ========== WATCH ADS WITH 10S TIMER + X BUTTON ==========
+let adIntervals = {}; // stores all timers
 
 function watchAdsTask(btn) {
+  const btnId = 'btn_' + Date.now(); // unique ID for each button
   btn.disabled = true;
-  btn.innerHTML = "Wait 10s... <button onclick='skipAd(this)' style='margin-left:5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;'>X</button>";
-  openAd(); // opens ad
-
   let time = 10;
+  
+  btn.innerHTML = `Wait ${time}s... <button onclick="skipAd('${btnId}')" style="margin-left:5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;">X</button>`;
+  
+  openAd(); // opens the ad
+
   const interval = setInterval(() => {
     time--;
-    btn.innerHTML = "Wait " + time + "s... <button onclick='skipAd(this)' style='margin-left:5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;'>X</button>";
+    btn.innerHTML = `Wait ${time}s... <button onclick="skipAd('${btnId}')" style="margin-left:5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;">X</button>`;
     if(time <= 0) {
       clearInterval(interval);
+      delete adIntervals[btnId];
       finishAd(btn);
     }
   }, 1000);
 
-  btn.dataset.interval = interval;
+  adIntervals[btnId] = interval; // save timer
+  btn.setAttribute('data-btnid', btnId);
 }
 
-function skipAd(xBtn) {
-  const btn = xBtn.parentElement;
-  clearInterval(btn.dataset.interval);
+function skipAd(btnId) {
+  clearInterval(adIntervals[btnId]);
+  delete adIntervals[btnId];
+  const btn = document.querySelector(`[data-btnid="${btnId}"]`);
   finishAd(btn);
 }
 
 function finishAd(btn) {
   btn.disabled = false;
   btn.innerText = "Watch";
-  addPoints(8); // <-- I kept it 8 points like you had
-  alert("You earned 8 points!");
+  
+  // UPDATE POINTS IN FIREBASE
+  if(currentUserData && auth.currentUser){
+    const newPoints = (currentUserData.points || 0) + 8;
+    updateDoc(doc(db, "users", auth.currentUser.uid), {
+      points: newPoints
+    });
+    document.getElementById("points").innerText = `${newPoints} Points`;
+    alert("You earned 8 points!");
+  }
 }
+// ========== END WATCH ADS CODE ==========
+
+
 </script>
 </body>
 </html>

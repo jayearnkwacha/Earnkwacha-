@@ -207,9 +207,7 @@ async function loadLeaderboard(){ const q = query(collection(db, "users"), order
 async function loadAllUsers(){ const querySnapshot = await getDocs(collection(db, "users")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); const isAdmin = data.email === ADMIN_EMAIL? "Yes" : "No"; const balance = data.points || 0; const ref = data.referredBy? "Yes" : "No"; const l2status = data.l2Paid? `Paid ${data.l2ReferralCount||0}/20` : `Pending`; html += `<tr><td>${data.email}</td><td>${balance} pts</td><td>${ref}</td><td>${l2status}</td><td>${isAdmin}</td><td><button class="btn btn-green btn-small" onclick="addPoints('${docSnap.id}')">+100</button></td></tr>`; }); document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=6>No users</td></tr>"; }
 async function loadAllWithdrawals(){ const querySnapshot = await getDocs(collection(db, "withdrawals")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let statusClass = "status-pending"; if(data.status==='approved') statusClass="status-approved"; if(data.status==='rejected') statusClass="status-rejected"; if(data.status==='paid') statusClass="status-paid"; let actions = `<span class="status-badge ${statusClass}">${data.status}</span>`; if(data.status==='pending'){ actions = `<button class="btn btn-green btn-small" onclick="approveWithdraw('${docSnap.id}')">Approve</button><button class="btn btn-red btn-small" onclick="rejectWithdraw('${docSnap.id}')">Reject</button>`; } if(data.status==='approved'){ actions = `<button class="btn btn-purple btn-small" onclick="openProof('${docSnap.id}','${data.email}',${data.mwk})">Mark Paid</button>`; } if(data.proofUrl){ actions += ` <img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">`; } html += `<tr><td>${data.email}</td><td>${data.method}</td><td>${data.account}</td><td>${data.amount}</td><td>${data.mwk} MWK</td><td><span class="status-badge ${statusClass}">${data.status}</span></td><td>${actions}</td></tr>`; }); document.querySelector("#withdrawTable tbody").innerHTML = html || "<tr><td colspan=7>No withdrawals</td></tr>"; }
 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    document.getElementById('auth').style.display = 'none'; 
+document.getElementById('auth').style.display = 'none'; 
     document.getElementById('dashboard').style.display = 'block';
     loadLimits(); 
     loadAnnouncement();
@@ -233,21 +231,38 @@ onAuthStateChanged(auth, (user) => {
 });
 
 
-// ========== WATCH ADS WITH 10S TIMER + X BUTTON ==========
-let adIntervals = {}; // stores all timers
+// ========== MONETAG DIRECT LINKS + 10S TIMER + X BUTTON ==========
+let adIntervals = {};
+
+// 1. PUT YOUR 15 MONETAG DIRECT LINKS HERE
+const DIRECT_LINKS = [
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
+  "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878"
+];
+let linkIndex = 0;
+
+function openAd() {
+  window.open(DIRECT_LINKS[linkIndex], '_blank');
+  linkIndex = (linkIndex + 1) % DIRECT_LINKS.length; // rotate links
+}
+
 
 function watchAdsTask(btn) {
-  const btnId = 'btn_' + Date.now(); // unique ID for each button
+  const btnId = 'btn_' + Date.now();
   btn.disabled = true;
   let time = 10;
   
-  btn.innerHTML = `Wait ${time}s... <button onclick="skipAd('${btnId}')" style="margin-left:5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;">X</button>`;
+  // Show timer + X button
+  btn.innerHTML = `Wait ${time}s... <button onclick="skipAd('${btnId}')" style="margin-left:5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;font-weight:bold;">X</button>`;
   
-  openAd(); // opens the ad
+  openAd(); // Opens Monetag link
 
   const interval = setInterval(() => {
     time--;
-    btn.innerHTML = `Wait ${time}s... <button onclick="skipAd('${btnId}')" style="margin-left:5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;">X</button>`;
+    btn.innerHTML = `Wait ${time}s... <button onclick="skipAd('${btnId}')" style="margin-left:5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;font-weight:bold;">X</button>`;
     if(time <= 0) {
       clearInterval(interval);
       delete adIntervals[btnId];
@@ -255,7 +270,7 @@ function watchAdsTask(btn) {
     }
   }, 1000);
 
-  adIntervals[btnId] = interval; // save timer
+  adIntervals[btnId] = interval;
   btn.setAttribute('data-btnid', btnId);
 }
 
@@ -263,14 +278,14 @@ function skipAd(btnId) {
   clearInterval(adIntervals[btnId]);
   delete adIntervals[btnId];
   const btn = document.querySelector(`[data-btnid="${btnId}"]`);
-  finishAd(btn);
+  finishAd(btn); // X button finishes early
 }
 
 function finishAd(btn) {
   btn.disabled = false;
-  btn.innerText = "Watch";
+  btn.innerText = "Watch"; // Goes back to watch button
   
-  // UPDATE POINTS IN FIREBASE
+  // 2. UPDATE POINTS IN FIREBASE
   if(currentUserData && auth.currentUser){
     const newPoints = (currentUserData.points || 0) + 8;
     updateDoc(doc(db, "users", auth.currentUser.uid), {
@@ -280,7 +295,7 @@ function finishAd(btn) {
     alert("You earned 8 points!");
   }
 }
-// ========== END WATCH ADS CODE ==========
+// ========== END ADS CODE ==========
 
 
 </script>

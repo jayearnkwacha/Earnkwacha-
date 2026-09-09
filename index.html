@@ -206,7 +206,6 @@ window.uploadProof = async () => { const file = document.getElementById('proofFi
 async function loadLeaderboard(){ const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10)); const querySnapshot = await getDocs(q); let html = ""; let rank = 1; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let className = ""; if(rank===1) className="top1"; if(rank===2) className="top2"; if(rank===3) className="top3"; html += `<div class="leaderboard-row ${className}"><span>#${rank} ${data.email}</span><span>${data.points || 0} pts</span></div>`; rank++; }); document.getElementById("leaderboardList").innerHTML = html || "No users yet"; }
 async function loadAllUsers(){ const querySnapshot = await getDocs(collection(db, "users")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); const isAdmin = data.email === ADMIN_EMAIL? "Yes" : "No"; const balance = data.points || 0; const ref = data.referredBy? "Yes" : "No"; const l2status = data.l2Paid? `Paid ${data.l2ReferralCount||0}/20` : `Pending`; html += `<tr><td>${data.email}</td><td>${balance} pts</td><td>${ref}</td><td>${l2status}</td><td>${isAdmin}</td><td><button class="btn btn-green btn-small" onclick="addPoints('${docSnap.id}')">+100</button></td></tr>`; }); document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=6>No users</td></tr>"; }
 async function loadAllWithdrawals(){ const querySnapshot = await getDocs(collection(db, "withdrawals")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let statusClass = "status-pending"; if(data.status==='approved') statusClass="status-approved"; if(data.status==='rejected') statusClass="status-rejected"; if(data.status==='paid') statusClass="status-paid"; let actions = `<span class="status-badge ${statusClass}">${data.status}</span>`; if(data.status==='pending'){ actions = `<button class="btn btn-green btn-small" onclick="approveWithdraw('${docSnap.id}')">Approve</button><button class="btn btn-red btn-small" onclick="rejectWithdraw('${docSnap.id}')">Reject</button>`; } if(data.status==='approved'){ actions = `<button class="btn btn-purple btn-small" onclick="openProof('${docSnap.id}','${data.email}',${data.mwk})">Mark Paid</button>`; } if(data.proofUrl){ actions += ` <img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">`; } html += `<tr><td>${data.email}</td><td>${data.method}</td><td>${data.account}</td><td>${data.amount}</td><td>${data.mwk} MWK</td><td><span class="status-badge ${statusClass}">${data.status}</span></td><td>${actions}</td></tr>`; }); document.querySelector("#withdrawTable tbody").innerHTML = html || "<tr><td colspan=7>No withdrawals</td></tr>"; }
-
 document.getElementById('auth').style.display = 'none'; 
     document.getElementById('dashboard').style.display = 'block';
     loadLimits(); 
@@ -231,10 +230,25 @@ document.getElementById('auth').style.display = 'none';
 });
 
 
-// ========== MONETAG DIRECT LINKS + 10S TIMER + X BUTTON ==========
+// ========== 1. ADMIN RESET FUNCTION ==========
+async function resetMyLimits() {
+  if(!auth.currentUser) return;
+  await updateDoc(doc(db, "users", auth.currentUser.uid), {
+    adsWatchedToday: 0,
+    youtubeWatchedToday: 0,
+    spinUsedToday: 0,
+    quizUsedToday: 0,
+    lastResetDate: "" // force reset
+  });
+  alert("Limits reset! Refresh page");
+  location.reload();
+}
+
+
+// ========== 2. MONETAG ADS + 10S TIMER + X BUTTON ==========
 let adIntervals = {};
 
-// 1. PUT YOUR 15 MONETAG DIRECT LINKS HERE
+// PUT YOUR 15 MONETAG DIRECT LINKS HERE
 const DIRECT_LINKS = [
   "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
   "https://omg10.com/4/11749878","https://omg10.com/4/11749878","https://omg10.com/4/11749878",
@@ -249,16 +263,14 @@ function openAd() {
   linkIndex = (linkIndex + 1) % DIRECT_LINKS.length; // rotate links
 }
 
-
 function watchAdsTask(btn) {
   const btnId = 'btn_' + Date.now();
   btn.disabled = true;
   let time = 10;
   
-  // Show timer + X button
   btn.innerHTML = `Wait ${time}s... <button onclick="skipAd('${btnId}')" style="margin-left:5px;background:red;color:white;border:none;border-radius:50%;width:20px;height:20px;font-size:12px;cursor:pointer;font-weight:bold;">X</button>`;
   
-  openAd(); // Opens Monetag link
+  openAd();
 
   const interval = setInterval(() => {
     time--;
@@ -278,24 +290,25 @@ function skipAd(btnId) {
   clearInterval(adIntervals[btnId]);
   delete adIntervals[btnId];
   const btn = document.querySelector(`[data-btnid="${btnId}"]`);
-  finishAd(btn); // X button finishes early
+  finishAd(btn);
 }
 
 function finishAd(btn) {
   btn.disabled = false;
-  btn.innerText = "Watch"; // Goes back to watch button
+  btn.innerText = "Watch";
   
-  // 2. UPDATE POINTS IN FIREBASE
   if(currentUserData && auth.currentUser){
     const newPoints = (currentUserData.points || 0) + 8;
+    const newAds = (currentUserData.adsWatchedToday || 0) + 1;
     updateDoc(doc(db, "users", auth.currentUser.uid), {
-      points: newPoints
+      points: newPoints,
+      adsWatchedToday: newAds
     });
     document.getElementById("points").innerText = `${newPoints} Points`;
     alert("You earned 8 points!");
   }
 }
-// ========== END ADS CODE ==========
+// ========== END CODE ==========
 
 
 </script>

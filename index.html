@@ -207,11 +207,12 @@ async function loadLeaderboard(){ const q = query(collection(db, "users"), order
 async function loadAllUsers(){ const querySnapshot = await getDocs(collection(db, "users")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); const isAdmin = data.email === ADMIN_EMAIL? "Yes" : "No"; const balance = data.points || 0; const ref = data.referredBy? "Yes" : "No"; const l2status = data.l2Paid? `Paid ${data.l2ReferralCount||0}/20` : `Pending`; html += `<tr><td>${data.email}</td><td>${balance} pts</td><td>${ref}</td><td>${l2status}</td><td>${isAdmin}</td><td><button class="btn btn-green btn-small" onclick="addPoints('${docSnap.id}')">+100</button></td></tr>`; }); document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=6>No users</td></tr>"; }
 async function loadAllWithdrawals(){ const querySnapshot = await getDocs(collection(db, "withdrawals")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let statusClass = "status-pending"; if(data.status==='approved') statusClass="status-approved"; if(data.status==='rejected') statusClass="status-rejected"; if(data.status==='paid') statusClass="status-paid"; let actions = `<span class="status-badge ${statusClass}">${data.status}</span>`; if(data.status==='pending'){ actions = `<button class="btn btn-green btn-small" onclick="approveWithdraw('${docSnap.id}')">Approve</button><button class="btn btn-red btn-small" onclick="rejectWithdraw('${docSnap.id}')">Reject</button>`; } if(data.status==='approved'){ actions = `<button class="btn btn-purple btn-small" onclick="openProof('${docSnap.id}','${data.email}',${data.mwk})">Mark Paid</button>`; } if(data.proofUrl){ actions += ` <img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">`; } html += `<tr><td>${data.email}</td><td>${data.method}</td><td>${data.account}</td><td>${data.amount}</td><td>${data.mwk} MWK</td><td><span class="status-badge ${statusClass}">${data.status}</span></td><td>${actions}</td></tr>`; }); document.querySelector("#withdrawTable tbody").innerHTML = html || "<tr><td colspan=7>No withdrawals</td></tr>"; }
 
-document.getElementById('auth').style.display = 'none'; 
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    document.getElementById('auth').style.display = 'none'; 
     document.getElementById('dashboard').style.display = 'block';
     loadLimits(); 
     loadAnnouncement();
-
     onSnapshot(doc(db, "users", user.uid), (docSnap) => { 
       if(docSnap.exists()){ 
         currentUserData = docSnap.data(); 
@@ -219,7 +220,6 @@ document.getElementById('auth').style.display = 'none';
         document.getElementById("points").innerText = `${currentUserData.points || 0} Points`; 
       } 
     });
-
     if(user.email === ADMIN_EMAIL){ 
       document.getElementById('adminBtn').style.display = 'block'; 
     }

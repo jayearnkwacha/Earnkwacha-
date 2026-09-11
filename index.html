@@ -315,6 +315,131 @@
             background: #111;
             color: #555;
         }
+
+        /* Admin Panel - screenshot-inspired mobile layout */
+        .admin-page-modal {
+            background: #fff;
+            color: #111;
+            width: min(94vw, 700px);
+            max-height: 92vh;
+            overflow-y: auto;
+            border-radius: 22px;
+            padding: 28px 30px 22px;
+            box-shadow: 0 12px 35px rgba(0,0,0,.16);
+        }
+        .admin-page-modal h2 {
+            text-align: center;
+            color: #087cf0;
+            font-size: 2.35rem;
+            margin: 0 0 14px;
+            font-weight: 800;
+        }
+        .admin-back-btn {
+            width: 100%;
+            border: 0;
+            border-radius: 12px;
+            padding: 15px 18px;
+            background: #087cf0;
+            color: #fff;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-bottom: 14px;
+        }
+        .admin-tabs {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 0;
+        }
+        .admin-tab {
+            border: 0;
+            border-radius: 8px 8px 0 0;
+            padding: 13px 28px;
+            font-size: 1rem;
+            cursor: pointer;
+            background: #ddd;
+            color: #222;
+        }
+        .admin-tab.active {
+            background: #087cf0;
+            color: #fff;
+        }
+        .admin-section-title {
+            font-size: 1.55rem;
+            margin: 0 0 12px;
+            color: #111;
+        }
+        .admin-table-wrap {
+            overflow-x: auto;
+            margin: 0 -30px;
+            padding: 0 30px;
+        }
+        .admin-table {
+            width: 100%;
+            min-width: 610px;
+            border-collapse: collapse;
+            font-size: .95rem;
+        }
+        .admin-table th {
+            background: #087cf0;
+            color: #fff;
+            padding: 14px 15px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+        .admin-table td {
+            padding: 20px 15px;
+            border-bottom: 1px solid #ddd;
+            color: #111;
+            white-space: nowrap;
+        }
+        .admin-add-btn {
+            border: 0;
+            border-radius: 8px;
+            padding: 10px 16px;
+            background: #28a745;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .admin-withdraw-panel {
+            display: none;
+        }
+        .admin-withdraw-panel.active {
+            display: block;
+        }
+        .admin-users-panel.active {
+            display: block;
+        }
+        .admin-users-panel {
+            display: block;
+        }
+        .admin-mobile-note {
+            margin-top: 14px;
+            font-size: .82rem;
+            color: #666;
+        }
+        @media (max-width: 560px) {
+            .admin-page-modal {
+                width: 94vw;
+                padding: 22px 18px 18px;
+                border-radius: 20px;
+            }
+            .admin-page-modal h2 {
+                font-size: 2rem;
+            }
+            .admin-table-wrap {
+                margin: 0 -18px;
+                padding: 0 18px;
+            }
+            .admin-table {
+                min-width: 590px;
+            }
+            .admin-tab {
+                padding: 12px 24px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -494,61 +619,124 @@
         </div>
     </div>
 
+
     <div class="modal-overlay" id="adminPanelDashboardModal">
-        <div class="modal-box" style="max-width: 700px; max-height: 85vh; overflow-y: auto;">
+        <div class="admin-page-modal">
             <h2>Admin Panel 🔐</h2>
-            <hr style="margin:1rem 0; border: 0; border-top:1px solid var(--border-color)">
-            
-            <h3>All System Users Management</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Email</th>
-                        <th>Balance</th>
-                        <th>Referred</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>testuser@earnkwacha.com</td>
-                        <td>1,240 pts</td>
-                        <td>12</td>
-                        <td><button style="color:red; background:none; border:none; cursor:pointer;">Ban</button></td>
-                    </tr>
-                </tbody>
-            </table>
 
-            <h3 style="margin-top:2rem;">All System Pending Withdrawals</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Email</th>
-                        <th>Method</th>
-                        <th>Points</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>user77@gmail.com</td>
-                        <td>TNM Mpamba</td>
-                        <td>6000 pts</td>
-                        <td><button style="color:green; background:none; border:none; cursor:pointer;" onclick="alert('Marked payment complete!')">Mark Paid</button></td>
-                    </tr>
-                </tbody>
-            </table>
+            <button class="admin-back-btn" onclick="closeModal('adminPanelDashboardModal')">
+                Back to Dashboard
+            </button>
 
-            <h3 style="margin-top:2rem;">Post System-Wide Announcement Notice</h3>
-            <div class="form-group" style="margin-top: 0.5rem;">
-                <textarea id="newAnnouncementText" class="form-control" rows="2" placeholder="Write message alert context here..."></textarea>
-            </div>
-            <div style="display:flex; gap:0.5rem;">
-                <button class="btn-task" style="flex:1;" onclick="updateSystemAnnouncement()">Post Announcement</button>
-                <button class="btn-task" style="flex:1; background-color:#e74c3c;" onclick="clearSystemAnnouncement()">Clear</button>
+            <div class="admin-tabs">
+                <button id="adminUsersTab" class="admin-tab active" onclick="showAdminTab('users')">
+                    Users
+                </button>
+                <button id="adminWithdrawalsTab" class="admin-tab" onclick="showAdminTab('withdrawals')">
+                    All Withdrawals
+                </button>
             </div>
 
-            <button class="modal-close-btn" style="background-color:#34495e;" onclick="closeModal('adminPanelDashboardModal')">Back to Dashboard</button>
+            <div id="adminUsersPanel" class="admin-users-panel active">
+                <h3 class="admin-section-title">All Users</h3>
+
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Balance</th>
+                                <th>Admin</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminUsersTableBody">
+                            <tr>
+                                <td>kellybkenani@gmail.com</td>
+                                <td>135 pts</td>
+                                <td>Yes</td>
+                                <td>
+                                    <button class="admin-add-btn" onclick="adminAddPoints(this, 100)">+100</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>kapolomemory@gmail.com</td>
+                                <td>0 pts</td>
+                                <td>No</td>
+                                <td>
+                                    <button class="admin-add-btn" onclick="adminAddPoints(this, 100)">+100</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>kellybkenani@gmail.com</td>
+                                <td>0 pts</td>
+                                <td>No</td>
+                                <td>
+                                    <button class="admin-add-btn" onclick="adminAddPoints(this, 100)">+100</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>test@gmail.com</td>
+                                <td>0 pts</td>
+                                <td>No</td>
+                                <td>
+                                    <button class="admin-add-btn" onclick="adminAddPoints(this, 100)">+100</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p class="admin-mobile-note">Swipe the table left/right on small screens to see all columns.</p>
+            </div>
+
+            <div id="adminWithdrawalsPanel" class="admin-withdraw-panel">
+                <h3 class="admin-section-title">All Withdrawals</h3>
+
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Method</th>
+                                <th>Points</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="adminWithdrawalsTableBody">
+                            <tr>
+                                <td>user77@gmail.com</td>
+                                <td>TNM Mpamba</td>
+                                <td>6000 pts</td>
+                                <td>Pending</td>
+                                <td>
+                                    <button class="admin-add-btn"
+                                            style="background:#087cf0;"
+                                            onclick="markWithdrawalPaid(this)">
+                                        Mark Paid
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="margin-top:22px; border-top:1px solid #ddd; padding-top:18px;">
+                <h3 class="admin-section-title" style="font-size:1.15rem;">System Announcement</h3>
+                <div class="form-group">
+                    <textarea id="newAnnouncementText" class="form-control" rows="2"
+                        placeholder="Write an announcement..."></textarea>
+                </div>
+                <div style="display:flex;gap:8px;">
+                    <button class="admin-back-btn" style="margin:0;flex:1;" onclick="updateSystemAnnouncement()">
+                        Post
+                    </button>
+                    <button class="admin-back-btn" style="margin:0;flex:1;background:#e74c3c;" onclick="clearSystemAnnouncement()">
+                        Clear
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -668,10 +856,59 @@
             if (enteredPasscodeValue === "admin123" || enteredPasscodeValue === "root") {
                 closeModal('adminAuthModal');
                 document.getElementById('adminPassField').value = ""; // flush input field values immediately
+                showAdminTab('users');
                 openModal('adminPanelDashboardModal');
             } else {
                 alert("Security Authorization Exception: Access keys evaluation invalid. Key matching matrix structural loop verification failed.");
             }
+        }
+
+
+        function showAdminTab(tabName) {
+            const usersPanel = document.getElementById('adminUsersPanel');
+            const withdrawalsPanel = document.getElementById('adminWithdrawalsPanel');
+            const usersTab = document.getElementById('adminUsersTab');
+            const withdrawalsTab = document.getElementById('adminWithdrawalsTab');
+
+            if (tabName === 'withdrawals') {
+                usersPanel.classList.remove('active');
+                withdrawalsPanel.classList.add('active');
+                usersTab.classList.remove('active');
+                withdrawalsTab.classList.add('active');
+            } else {
+                withdrawalsPanel.classList.remove('active');
+                usersPanel.classList.add('active');
+                withdrawalsTab.classList.remove('active');
+                usersTab.classList.add('active');
+            }
+        }
+
+        function adminAddPoints(buttonElement, amount) {
+            const row = buttonElement.closest('tr');
+            const balanceCell = row ? row.cells[1] : null;
+            if (!balanceCell) return;
+
+            const current = parseInt(balanceCell.textContent.replace(/[^\d-]/g, ''), 10) || 0;
+            balanceCell.textContent = (current + amount).toLocaleString() + ' pts';
+            buttonElement.textContent = 'Added +' + amount;
+            setTimeout(() => {
+                buttonElement.textContent = '+' + amount;
+            }, 900);
+        }
+
+        function markWithdrawalPaid(buttonElement) {
+            const row = buttonElement.closest('tr');
+            if (!row) return;
+
+            const statusCell = row.cells[3];
+            if (statusCell) {
+                statusCell.textContent = 'Paid';
+                statusCell.style.fontWeight = '700';
+                statusCell.style.color = '#28a745';
+            }
+            buttonElement.textContent = 'Paid';
+            buttonElement.disabled = true;
+            buttonElement.style.opacity = '.7';
         }
 
         function updateSystemAnnouncement() {

@@ -1,222 +1,738 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EarnKwaCha 💰</title>
-<style>
-:root { --bg: #f4f4f4; --card: white; --text: #000; --border: #ddd; }
-body.dark { --bg: #121212; --card: #1e1e1e; --text: #fff; --border: #333; }
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-body { background: var(--bg); color: var(--text); padding: 20px; transition: 0.3s; }
-.container { max-width: 700px; margin: auto; background: var(--card); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-h1 { text-align: center; color: #007bff; }
-h2 { text-align: center; margin: 15px 0; }
-input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); }
-.btn { width: 100%; padding: 14px; margin: 8px 0; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; color: white; }
-.btn-green { background: #28a745; }.btn-blue { background: #007bff; }.btn-orange { background: #FF9800; }
-.btn-red { background: red; }.btn-gray { background: gray; cursor: not-allowed; }.btn-purple { background: #6f42c1; }
-.btn-yellow { background: #ffc107; color: black; }.btn-dark { background: #343a40; }
-.btn-small { padding: 6px 12px; font-size: 14px; width: auto; margin: 2px; }
-.balance-box { text-align: center; margin: 20px 0; padding: 20px; background: #e8f5e9; border-radius: 10px; }
-body.dark.balance-box { background: #0f2e13; }
-.balance { font-size: 36px; color: green; font-weight: bold; }
-.task { background: var(--bg); padding: 15px; margin: 10px 0; border-radius: 8px; border-left: 4px solid #007bff; display: flex; justify-content: space-between; align-items: center; }
-.task button { padding: 8px 15px; background: #28a745; color: darkblue; border: none; border-radius: 5px; cursor: pointer; }
-.task button:disabled { background: gray; cursor: not-allowed; }
-#dashboard, #adminPanel, #tasksSection, #withdrawModal, #proofModal, #adminPassModal { display: none; }
-.modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 999; display: flex; align-items: center; justify-content: center; }
-.modal-content { background: var(--card); padding: 20px; width: 90%; max-width: 400px; border-radius: 10px; color: var(--text); }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); }
-th { background: #007bff; color: white; }
-.tab button { padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px; margin-right: 5px; background:#ddd; color:#000; }
-.tab button.active { background: #007bff; color: white; }
-.counter { font-size: 12px; color: #666; } body.dark.counter { color: #aaa; }
-.notification { position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 15px 20px; border-radius: 8px; display: none; z-index: 1000; }
-.status-badge { padding: 4px 8px; border-radius: 5px; font-size: 12px; color: white; }
-.status-pending { background: orange; }.status-approved { background: green; }.status-rejected { background: red; }.status-paid { background: #6f42c1; }
-img.proof { width: 80px; cursor: pointer; border-radius: 5px; }
-.timer { text-align: center; font-size: 12px; color: #dc3545; font-weight: bold; }
-.leaderboard { margin-top: 20px; }
-.leaderboard-row { display: flex; justify-content: space-between; padding: 10px; margin: 5px 0; background: var(--bg); border-radius: 8px; }
-.leaderboard-row.top1 { background: gold; color:#000; font-weight: bold; }
-.leaderboard-row.top2 { background: silver; color:#000; font-weight: bold; }
-.leaderboard-row.top3 { background: #cd7f32; color: white; font-weight: bold; }
-.header { display: flex; justify-content: space-between; align-items: center; }
-.announcement { background: #fff3cd; color: #856404; padding: 12px 15px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid #ffc107; display: flex; justify-content: space-between; align-items: center; }
-.announcement button { background: none; border: none; font-size: 20px; cursor: pointer; color: #856404; }
-body.dark.announcement { background: #332b00; color: #ffeeba; border-left: 4px solid #ffc107; }
-.ref-box { background: #e7f3ff; padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center; border: 2px dashed #007bff; }
-body.dark.ref-box { background: #001f3f; border-color: #007bff; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EarnKwaCha 💰</title>
+    <style>
+        /* Global Reset & Typography */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        :root {
+            --bg-color: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+            --primary-color: #2ecc71;
+            --secondary-color: #34495e;
+            --accent-color: #e74c3c;
+            --border-color: #e2e8f0;
+        }
+        body.dark-mode {
+            --bg-color: #1a1a2e;
+            --card-bg: #16213e;
+            --text-color: #e2e8f0;
+            --border-color: #243b55;
+        }
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background 0.3s, color 0.3s;
+            padding-bottom: 60px;
+        }
+
+        /* Top Navigation Header */
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .btn-auth {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        /* Main Container Framework */
+        .container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        /* Alert/Announcement Banner */
+        .announcement-banner {
+            background-color: #3498db;
+            color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .close-banner {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        /* Dashboard Identity Box */
+        .dashboard-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            margin-bottom: 1.5rem;
+        }
+        .balance-title {
+            font-size: 1rem;
+            color: #7f8c8d;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .balance-amount {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin: 0.5rem 0;
+        }
+        .reset-timer {
+            font-size: 0.85rem;
+            color: #95a5a6;
+        }
+
+        /* Quick Action Grid Panels */
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+        .btn-action {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: transform 0.2s;
+        }
+        .btn-action:hover {
+            transform: translateY(-2px);
+        }
+        .btn-admin-nav {
+            background-color: #7f8c8d;
+        }
+
+        /* Referral System Panel */
+        .referral-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .referral-header {
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .referral-rates {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin-bottom: 1rem;
+        }
+        .share-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .share-input {
+            flex: 1;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* Interactive Task List View Layout */
+        .tasks-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+        .tasks-title {
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        .task-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .task-row:last-child {
+            border-bottom: none;
+        }
+        .task-info h4 {
+            margin-bottom: 0.25rem;
+        }
+        .task-info p {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+        }
+        .btn-task {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .btn-task:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        /* Overlay Popups (Modals) System */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .modal-box {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .modal-close-btn {
+            background-color: #7f8c8d;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            margin-top: 1.5rem;
+            cursor: pointer;
+            width: 100%;
+        }
+        
+        /* Tables Styles inside Modals */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+        th, td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Form Controls Setup */
+        .form-group {
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+        .form-control {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        /* System Ad Banner Placeholder styling */
+        .system-ad-space {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: #ebebeb;
+            border-radius: 8px;
+            text-align: center;
+            color: #666;
+            font-size: 0.8rem;
+        }
+        body.dark-mode .system-ad-space {
+            background: #111;
+            color: #555;
+        }
+    </style>
 </head>
 <body>
 
-<div class="notification" id="notification"></div>
+    <!-- Header Navigation Section -->
+    <header>
+        <nav>
+            <div class="logo">EarnKwaCha 💰</div>
+            <div class="nav-controls">
+                <button class="theme-toggle" onclick="toggleTheme()">🌙</button>
+                <button class="btn-auth" id="authBtn" onclick="toggleAuthMock()">Login</button>
+            </div>
+        </nav>
+    </header>
 
-<div class="container" id="auth">
-<div class="header"><h1>EarnKwaCha 💰</h1><button class="btn btn-dark btn-small" onclick="toggleDark()">🌙</button></div>
-<input type="email" id="email" placeholder="Email">
-<input type="password" id="password" placeholder="Password">
-<button class="btn btn-green" onclick="signUp()">Sign Up +50 Points</button>
-<button class="btn btn-blue" onclick="login()">Login</button>
-</div>
+    <!-- Main Container Interface Framework -->
+    <main class="container">
+        
+        <!-- Live System Announcements Banner -->
+        <div class="announcement-banner" id="announcementBox">
+            <span>📢 Welcome to EarnKwaCha! Watch ads daily and withdraw directly via Airtel Money or Mpamba!</span>
+            <button class="close-banner" onclick="closeAnnouncement()">×</button>
+        </div>
 
-<div class="container" id="dashboard">
-<div class="header"><h1>EarnKwaCha 💰</h1><button class="btn btn-dark btn-small" onclick="toggleDark()">🌙</button></div>
-<div id="announcementBanner" class="announcement" style="display:none;"><span id="announcementText">📢 </span><button onclick="closeAnnouncement()">×</button></div>
-<h2>Dashboard</h2><p style="text-align:center;" id="welcome">Loading...</p><p class="timer" id="resetTimer">Resets in: 00:00:00</p>
-<div class="balance-box"><p>Your Balance</p><div class="balance" id="points">0 Points</div></div>
-<div class="ref-box"><h4>💰 Referral Program L1 + L2</h4><p><b>Level 1: 10 Points Instant</b> | <b>Level 2: 5 Points After 1 Ad - Max 20</b></p><input type="text" id="refLink" readonly placeholder="Your link will appear here"><button class="btn btn-green btn-small" onclick="copyRef()">Copy Link</button></div>
-<button class="btn btn-orange" onclick="openWithdraw()">Request Withdraw</button>
-<button class="btn btn-blue" onclick="showUserWithdraws()">My Withdrawals</button>
-<button class="btn btn-green" onclick="showTasks()">View Tasks</button>
-<button class="btn btn-yellow" onclick="showLeaderboard()">🏆 Leaderboard</button>
-<button class="btn btn-purple" id="adminBtn" onclick="showAdmin()" style="display:none;">Admin Panel</button>
-<button class="btn btn-red" onclick="logout()">Logout</button>
-<div id="leaderboardSection" class="leaderboard" style="display:none;"><h3>🏆 Top 10 Earners</h3><div id="leaderboardList">Loading...</div><button class="btn btn-red" onclick="hideLeaderboard()">Close</button></div>
-<div id="userWithdraws" style="display:none; margin-top:20px;"><h3>My Withdrawal History <button class="btn btn-gray btn-small" onclick="hideUserWithdraws()">Close</button></h3><table id="userWithdrawTable"><thead><tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th><th>Proof</th></tr></thead><tbody></tbody></table></div>
-<div id="tasksSection"><h3 class="section-title">Available Tasks <span>Resets Daily</span></h3>
-<div class="task"><div><b>Watch Ads - 8 Points</b><br><span class="counter" id="adsCount">0/10 today</span></div><button id="adsBtn" onclick="addTaskPoints('ads', 8)">Watch</button></div>
-<div class="task"><div><b>Watch YouTube - 10 Points</b><br><span class="counter" id="ytCount">0/10 today</span></div><button id="ytBtn" onclick="addTaskPoints('yt', 10)">Watch</button></div>
-<div class="task"><div><b>Spin & Win - 0-5 Points</b><br><span class="counter" id="spinCount">0/1 today</span></div><button id="spinBtn" onclick="spin()">Spin</button></div>
-<div class="task"><div><b>Quick Quiz - 10 Points</b><br><span class="counter" id="quizCount">0/3 today</span></div><button id="quizBtn" onclick="quizGame()">Play</button></div>
-<button class="btn btn-red" onclick="hideTasks()">Close Tasks</button></div>
-</div>
+        <!-- Dashboard Panel -->
+        <section class="dashboard-card">
+            <h3 class="balance-title">Your Balance</h3>
+            <div class="balance-amount" id="userBalance">0 Points</div>
+            <div class="reset-timer">Resets in: <span id="countdownTimer">24:00:00</span></div>
+            
+            <div class="action-grid">
+                <button class="btn-action" onclick="openModal('withdrawModal')">Request Withdraw</button>
+                <button class="btn-action" onclick="openModal('historyModal')">My Withdrawals</button>
+                <button class="btn-action" onclick="openModal('leaderboardModal')">🏆 Leaderboard</button>
+                <button class="btn-action btn-admin-nav" onclick="openModal('adminAuthModal')">Admin Panel 🔐</button>
+            </div>
+        </section>
 
-<div class="container" id="adminPanel"><h1>Admin Panel 🔐</h1><button class="btn btn-blue" onclick="hideAdmin()">Back to Dashboard</button>
-<div class="tab"><button class="tablinks active" id="usersTab" onclick="openTab('Users')">Users</button><button class="tablinks" id="withdrawTab" onclick="openTab('Withdrawals')">Withdrawals</button><button class="tablinks" id="announceTab" onclick="openTab('Announcement')">Announcement</button></div>
-<div id="Users" class="tabcontent"><h3>All Users</h3><table id="usersTable"><thead><tr><th>Email</th><th>Balance</th><th>Referred</th><th>L2 Status</th><th>Admin</th><th>Action</th></tr></thead><tbody></tbody></table></div>
-<div id="Withdrawals" class="tabcontent" style="display:none;"><h3>All Withdrawals</h3><table id="withdrawTable"><thead><tr><th>Email</th><th>Method</th><th>Account</th><th>Points</th><th>MWK</th><th>Status</th><th>Action</th></tr></thead><tbody></tbody></table></div>
-<div id="Announcement" class="tabcontent" style="display:none;"><h3>Post Announcement</h3><textarea id="announceInput" rows="3" placeholder="Type announcement message here..."></textarea><button class="btn btn-orange" onclick="postAnnouncement()">Post Announcement</button><button class="btn btn-red" onclick="clearAnnouncement()">Clear Announcement</button><p style="margin-top:10px; font-size:12px;">Current: <span id="currentAnnounce">None</span></p></div>
-</div>
+        <section class="referral-box">
+            <div class="referral-header">💰 Referral Program L1 + L2</div>
+            <div class="referral-rates">Level 1: 10 Points Instant | Level 2: 5 Points After 1 Ad - Max 20</div>
+            <div class="share-row">
+                <input type="text" class="share-input" id="refLink" value="https://earnkwacha.com/ref?user=102938" readonly>
+                <button class="btn-task" onclick="copyReferralLink()">Copy Link</button>
+            </div>
+        </section>
 
-<div id="adminPassModal" class="modal"><div class="modal-content"><h3>Admin Login 🔐</h3><p>Enter admin password</p><input type="password" id="adminPassInput" placeholder="Password"><button class="btn btn-purple" onclick="checkAdminPass()">Enter</button><button class="btn btn-red" onclick="closeAdminPass()">Cancel</button></div></div>
-<div id="withdrawModal" class="modal"><div class="modal-content"><h3>Request Withdraw</h3><p>Min Withdraw: 5000 Points = 5000 MWK</p><p style="font-size:12px; color:gray;">Rate: 1 Point = 1 MWK</p><select id="withdrawMethod"><option>Binance USDT</option><option>PayPal USD</option><option>National Bank Account</option><option>Airtel Money</option><option>TNM Mpamba</option></select><input type="text" id="accountNumber" placeholder="Wallet/Email/Account/Phone"><input type="number" id="withdrawAmount" placeholder="Points to withdraw"><p id="mwkEstimate" style="font-weight:bold; text-align:center;"></p><button class="btn btn-green" onclick="requestWithdraw()">Submit Request</button><button class="btn btn-red" onclick="closeWithdraw()">Cancel</button></div></div>
-<div id="proofModal" class="modal"><div class="modal-content"><h3>Upload Payment Proof</h3><p id="proofInfo"></p><input type="file" id="proofFile" accept="image/*"><button class="btn btn-purple" onclick="uploadProof()">Mark as Paid</button><button class="btn btn-red" onclick="closeProof()">Cancel</button></div></div>
+        <section class="tasks-section">
+            <h3 class="tasks-title">Available Tasks (Resets Daily)</h3>
+            
+            <!-- Watch Ads MonetaG Task Row Block Elements -->
+            <div class="task-row">
+                <div class="task-info">
+                    <h4>Watch Ads - 8 Points</h4>
+                    <p id="ads-counter-text">0/10 today</p>
+                </div>
+                <button class="btn-task" id="watchAdsBtn" onclick="watchAdsTask(this)">Watch</button>
+            </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getFirestore, doc, setDoc, getDoc, updateDoc, addDoc, collection, getDocs, increment, onSnapshot, serverTimestamp, query, where, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
+            <!-- YouTube Video Tasks Placement Info Elements -->
+            <div class="task-row">
+                <div class="task-info">
+                    <h4>Watch YouTube - 10 Points</h4>
+                    <p>0/10 today</p>
+                </div>
+                <button class="btn-task" onclick="alert('YouTube tasks module loading...')">Watch</button>
+            </div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyBUzpLPaWrT2SC7ncLZyGVRM88YfX_iJF4",
-  authDomain: "earnkwacha-b385a.firebaseapp.com",
-  projectId: "earnkwacha-b385a",
-  storageBucket: "earnkwacha-b385a.firebasestorage.app",
-  messagingSenderId: "5188195546",
-  appId: "1:5188195546:web:de9200ec1217bc8f9441e3"
-};
+            <!-- Spin and Win Elements Row Block -->
+            <div class="task-row">
+                <div class="task-info">
+                    <h4>Spin & Win - 0-5 Points</h4>
+                    <p>0/1 today</p>
+                </div>
+                <button class="btn-task" onclick="alert('Opening Lucky Spin Panel...')">Spin</button>
+            </div>
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-const storage = getStorage(app);
-const ADMIN_EMAIL = "kellybkenani@gmail.com";
-const ADMIN_PASSWORD = "0909kelly";
-let currentUserData = {};
-let dailyLimits = {ads: 0, yt: 0, spin: 0, quiz: 0};
-let currentProofId = "";
+            <!-- Quiz Games Module Section Elements Row Block -->
+            <div class="task-row">
+                <div class="task-info">
+                    <h4>Quick Quiz - 10 Points</h4>
+                    <p>0/3 today</p>
+                </div>
+                <button class="btn-task" onclick="alert('Loading Academic Quiz Engine...')">Play</button>
+            </div>
+        </section>
 
-window.toggleDark = () => { document.body.classList.toggle('dark'); const isDark = document.body.classList.contains('dark'); localStorage.setItem('darkMode', isDark); document.querySelectorAll('.btn-dark').forEach(btn => btn.innerText = isDark? '☀️' : '🌙'); }
-if(localStorage.getItem('darkMode') === 'true'){ document.body.classList.add('dark'); }
-function showNotif(msg){ const n = document.getElementById('notification'); n.innerText = msg; n.style.display = 'block'; setTimeout(()=> n.style.display='none', 3000); }
-async function sendEmail(to, subject, html){ try { await addDoc(collection(db, "mail"), { to: to, message: { subject: subject, html: html } }); } catch(e) { console.log("Email error:", e) } }
+        <div class="system-ad-space">
+            <p>Advertisement — Please wait...</p>
+        </div>
+    </main>
 
-window.postAnnouncement = async () => { const msg = document.getElementById('announceInput').value; if(!msg) return showNotif("Type a message first"); await setDoc(doc(db, "settings", "announcement"), { text: msg, active: true }); showNotif("Announcement posted!"); document.getElementById('announceInput').value = ""; }
-window.clearAnnouncement = async () => { await updateDoc(doc(db, "settings", "announcement"), { active: false }); showNotif("Announcement cleared"); }
-function loadAnnouncement(){ onSnapshot(doc(db, "settings", "announcement"), (docSnap) => { if(docSnap.exists() && docSnap.data().active){ document.getElementById('announcementBanner').style.display = 'flex'; document.getElementById('announcementText').innerText = "📢 " + docSnap.data().text; document.getElementById('currentAnnounce').innerText = docSnap.data().text; } else { document.getElementById('announcementBanner').style.display = 'none'; document.getElementById('currentAnnounce').innerText = "None"; } }); }
-window.closeAnnouncement = () => { document.getElementById('announcementBanner').style.display = 'none'; }
+    <div class="modal-overlay" id="withdrawModal">
+        <div class="modal-box">
+            <h3>Request Withdraw</h3>
+            <p style="font-size: 0.85rem; color:#7f8c8d; margin-bottom: 1rem;">Min Withdraw: 5000 Points = 5000 MWK<br>Rate: 1 Point = 1 MWK</p>
+            <form onsubmit="submitWithdrawForm(event)">
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select class="form-control" id="withdrawMethod">
+                        <option value="Airtel Money">Airtel Money</option>
+                        <option value="TNM Mpamba">TNM Mpamba</option>
+                        <option value="National Bank Account">National Bank Account</option>
+                        <option value="Binance USDT">Binance USDT</option>
+                        <option value="PayPal USD">PayPal USD</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Account Number / Phone / Wallet Address</label>
+                    <input type="text" class="form-control" required placeholder="0888... / 0999... / Email">
+                </div>
+                <div class="form-group">
+                    <label>Points Amount</label>
+                    <input type="number" class="form-control" min="5000" step="1" required placeholder="5000">
+                </div>
+                <button type="submit" class="btn-task" style="width: 100%;">Submit Request</button>
+            </form>
+            <button class="modal-close-btn" onclick="closeModal('withdrawModal')">Cancel</button>
+        </div>
+    </div>
 
-function checkReset(){ const today = new Date().toLocaleDateString(); const lastReset = localStorage.getItem('lastResetDate'); if(lastReset!== today){ dailyLimits = {ads: 0, yt: 0, spin: 0, quiz: 0}; saveLimits(); localStorage.setItem('lastResetDate', today); showNotif("Daily tasks reset! 🔄"); } updateTimer(); }
-function updateTimer(){ const now = new Date(); const tomorrow = new Date(now); tomorrow.setDate(tomorrow.getDate() + 1); tomorrow.setHours(0,0,0,0); const diff = tomorrow - now; const h = Math.floor(diff / 1000 / 60 / 60); const m = Math.floor(diff / 1000 / 60) % 60; const s = Math.floor(diff / 1000) % 60; document.getElementById('resetTimer').innerText = `Resets in: ${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`; }
-setInterval(updateTimer, 1000);
-function getLimitKey() { return `limits_${auth.currentUser?.uid}`; }
-function loadLimits(){ checkReset(); dailyLimits = JSON.parse(localStorage.getItem(getLimitKey())) || {ads: 0, yt: 0, spin: 0, quiz: 0}; updateCounters(); }
-function saveLimits(){ localStorage.setItem(getLimitKey(), JSON.stringify(dailyLimits)); }
-function updateCounters(){ document.getElementById('adsCount').innerText = `${dailyLimits.ads}/10 today`; document.getElementById('ytCount').innerText = `${dailyLimits.yt}/10 today`; document.getElementById('spinCount').innerText = `${dailyLimits.spin}/1 today`; document.getElementById('quizCount').innerText = `${dailyLimits.quiz}/3 today`; document.getElementById('adsBtn').disabled = dailyLimits.ads >= 10; document.getElementById('ytBtn').disabled = dailyLimits.yt >= 10; document.getElementById('spinBtn').disabled = dailyLimits.spin >= 1; document.getElementById('quizBtn').disabled = dailyLimits.quiz >= 3; }
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-box" style="max-width: 600px;">
+            <h3>My Withdrawal History</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <tr>
+                        <td>2026-03-09</td>
+                        <td>5,500 MWK</td>
+                        <td>Airtel Money</td>
+                        <td style="color: green; font-weight: bold;">Paid</td>
+                    </tr>
+                </tbody>
+            </table>
+            <button class="modal-close-btn" onclick="closeModal('historyModal')">Close</button>
+        </div>
+    </div>
 
-window.copyRef = () => { const link = `${window.location.origin}${window.location.pathname}?ref=${auth.currentUser.uid}`; document.getElementById('refLink').value = link; navigator.clipboard.writeText(link); showNotif("Referral link copied!"); }
+    <div class="modal-overlay" id="leaderboardModal">
+        <div class="modal-box">
+            <h3>🏆 Top 10 Earners</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>User</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>1</td><td>chis***@gmail.com</td><td>42,150 pts</td></tr>
+                    <tr><td>2</td><td>band***@yahoo.com</td><td>38,400 pts</td></tr>
+                    <tr><td>3</td><td>phir***@gmail.com</td><td>31,200 pts</td></tr>
+                </tbody>
+            </table>
+            <button class="modal-close-btn" onclick="closeModal('leaderboardModal')">Close</button>
+        </div>
+    </div>
 
-window.signUp = async () => {
-  const email = document.getElementById("email").value; const password = document.getElementById("password").value; const urlParams = new URLSearchParams(window.location.search); const refId = urlParams.get('ref');
-  try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password); let referredBy = ""; let referredByL2 = "";
-    if(refId){ const refDoc = await getDoc(doc(db, "users", refId)); if(refDoc.exists()){ referredBy = refId; referredByL2 = refDoc.data().referredBy || ""; await updateDoc(doc(db, "users", refId), { points: increment(10) }); await sendEmail(refDoc.data().email, "You earned 10 points!", `<p>Someone signed up with your link. +10 Points L1 bonus!</p>`); } }
-    await setDoc(doc(db, "users", userCredential.user.uid), { email: email, points: 50, referredBy: referredBy, referredByL2: referredByL2, l2Paid: false, l2ReferralCount: 0 });
-    await sendEmail(email, "Welcome to EarnKwaCha!", `<p>Account created! You got 50 free points.</p>`); showNotif("Account created! +50 Points");
-  } catch (error) { showNotif(error.message); }
-}
+    <div class="modal-overlay" id="adminAuthModal">
+        <div class="modal-box">
+            <h3>Admin Login 🔐</h3>
+            <p style="margin-bottom:1rem; font-size:0.9rem;">Enter admin authorization passcode keys:</p>
+            <div class="form-group">
+                <input type="password" id="adminPassField" class="form-control" placeholder="••••••••">
+            </div>
+            <button class="btn-task" style="width:100%; background-color:#34495e;" onclick="accessAdminDashboard()">Enter</button>
+            <button class="modal-close-btn" onclick="closeModal('adminAuthModal')">Cancel</button>
+        </div>
+    </div>
 
-window.login = async () => { const email = document.getElementById("email").value; const password = document.getElementById("password").value; try { await signInWithEmailAndPassword(auth, email, password); if(email === ADMIN_EMAIL){ document.getElementById('adminPassModal').style.display = 'flex'; } } catch (error) { showNotif(error.message); } }
-window.checkAdminPass = () => { const pass = document.getElementById('adminPassInput').value; if(pass === ADMIN_PASSWORD){ closeAdminPass(); showNotif("Admin access granted"); } else { showNotif("Wrong admin password"); signOut(auth); } }
-window.closeAdminPass = () => { document.getElementById('adminPassModal').style.display = 'none'; }
-window.logout = () => { signOut(auth); }
-window.showTasks = () => { document.getElementById("tasksSection").style.display = "block"; document.getElementById("leaderboardSection").style.display = "none"; }
-window.hideTasks = () => { document.getElementById("tasksSection").style.display = "none"; }
-window.showLeaderboard = async () => { document.getElementById("tasksSection").style.display = "none"; document.getElementById("userWithdraws").style.display = "none"; document.getElementById("leaderboardSection").style.display = "block"; loadLeaderboard(); }
-window.hideLeaderboard = () => { document.getElementById("leaderboardSection").style.display = "none"; }
-window.showUserWithdraws = async () => { document.getElementById("tasksSection").style.display = "none"; document.getElementById("leaderboardSection").style.display = "none"; document.getElementById("userWithdraws").style.display = "block"; const q = query(collection(db, "withdrawals"), where("userId", "==", auth.currentUser.uid), orderBy("createdAt", "desc")); const querySnapshot = await getDocs(q); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let proof = data.proofUrl? `<img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">` : "-"; html += `<tr><td>${new Date(data.createdAt?.seconds*1000).toLocaleDateString()}</td><td>${data.amount}</td><td>${data.method}</td><td>${data.status}</td><td>${proof}</td></tr>`; }); document.querySelector("#userWithdrawTable tbody").innerHTML = html || "<tr><td colspan=5>No withdrawals</td></tr>"; }
-window.hideUserWithdraws = () => { document.getElementById("userWithdraws").style.display = "none"; }
+    <div class="modal-overlay" id="adminPanelDashboardModal">
+        <div class="modal-box" style="max-width: 700px; max-height: 85vh; overflow-y: auto;">
+            <h2>Admin Panel 🔐</h2>
+            <hr style="margin:1rem 0; border: 0; border-top:1px solid var(--border-color)">
+            
+            <h3>All System Users Management</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Balance</th>
+                        <th>Referred</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>testuser@earnkwacha.com</td>
+                        <td>1,240 pts</td>
+                        <td>12</td>
+                        <td><button style="color:red; background:none; border:none; cursor:pointer;">Ban</button></td>
+                    </tr>
+                </tbody>
+            </table>
 
-window.addTaskPoints = async (type, pts) => {
-  const user = auth.currentUser; if(!user) return;
-  const userDocRef = doc(db, "users", user.uid);
-  const userData = (await getDoc(userDocRef)).data();
-  await updateDoc(userDocRef, { points: increment(pts) });
-  dailyLimits[type]++; saveLimits(); updateCounters(); showNotif(`+${pts} Points added!`);
+            <h3 style="margin-top:2rem;">All System Pending Withdrawals</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Method</th>
+                        <th>Points</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>user77@gmail.com</td>
+                        <td>TNM Mpamba</td>
+                        <td>6000 pts</td>
+                        <td><button style="color:green; background:none; border:none; cursor:pointer;" onclick="alert('Marked payment complete!')">Mark Paid</button></td>
+                    </tr>
+                </tbody>
+            </table>
 
-  // L2 LOGIC: Pay 5pts to inviter only after first ad watch
-  if(type === 'ads' && dailyLimits.ads === 1 && userData.referredByL2 &&!userData.l2Paid){
-    const l2Ref = doc(db, "users", userData.referredByL2); const l2Data = (await getDoc(l2Ref)).data(); let l2Count = l2Data.l2ReferralCount || 0;
-    if(l2Count < 20){
-      await updateDoc(l2Ref, { points: increment(5), l2ReferralCount: increment(1) });
-      await updateDoc(userDocRef, { l2Paid: true });
-      await sendEmail(l2Data.email, "L2 Bonus Earned!", `<p>Your referral completed their first ad. +5 Points. ${l2Count+1}/20</p>`);
-      showNotif(`L2 Bonus: 5pts sent to your inviter!`);
-    }
-  }
-}
+            <h3 style="margin-top:2rem;">Post System-Wide Announcement Notice</h3>
+            <div class="form-group" style="margin-top: 0.5rem;">
+                <textarea id="newAnnouncementText" class="form-control" rows="2" placeholder="Write message alert context here..."></textarea>
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+                <button class="btn-task" style="flex:1;" onclick="updateSystemAnnouncement()">Post Announcement</button>
+                <button class="btn-task" style="flex:1; background-color:#e74c3c;" onclick="clearSystemAnnouncement()">Clear</button>
+            </div>
 
-window.spin = async () => { if(dailyLimits.spin>=1) return showNotif("You already spun today"); const pts = Math.floor(Math.random() * 6); const user = auth.currentUser; await updateDoc(doc(db, "users", user.uid), { points: increment(pts) }); dailyLimits.spin++; saveLimits(); updateCounters(); showNotif(`You won ${pts} Points! 🎉`); }
-window.quizGame = async () => { if(dailyLimits.quiz>=3) return showNotif("Limit: 3 quizzes per day"); const questions = [{q: "5 + 7?", a: "12"},{q: "Capital of Malawi?", a: "Lilongwe"},{q: "2 + 2?", a: "4"}]; const randomQ = questions[Math.floor(Math.random() * questions.length)]; const answer = prompt(`Question: ${randomQ.q}`); if(answer && answer.toLowerCase().trim() == randomQ.a.toLowerCase()){ const user = auth.currentUser; await updateDoc(doc(db, "users", user.uid), { points: increment(10) }); dailyLimits.quiz++; saveLimits(); updateCounters(); showNotif("Correct! +10 Points") } else { showNotif(`Wrong! Answer: ${randomQ.a}`) } }
-window.openWithdraw = () => { document.getElementById('withdrawModal').style.display = 'flex'; }
-window.closeWithdraw = () => { document.getElementById('withdrawModal').style.display = 'none'; }
+            <button class="modal-close-btn" style="background-color:#34495e;" onclick="closeModal('adminPanelDashboardModal')">Back to Dashboard</button>
+        </div>
+    </div>
 
-window.requestWithdraw = async () => {
-  const method = document.getElementById("withdrawMethod").value; const account = document.getElementById("accountNumber").value; const amount = parseInt(document.getElementById("withdrawAmount").value); const user = auth.currentUser;
-  if (!account ||!amount) return showNotif("Fill all fields"); if (amount > currentUserData.points) return showNotif("Not enough points"); if (amount < 5000) return showNotif("Min withdraw is 5000 Points");
-  await updateDoc(doc(db, "users", user.uid), { points: increment(-amount) });
-  await addDoc(collection(db, "withdrawals"), { userId: user.uid, email: currentUserData.email, method, account, amount, mwk: amount, status: "pending", proofUrl: "", createdAt: serverTimestamp() });
-  showNotif(`${amount} Points deducted. Withdraw request submitted`); closeWithdraw();
-}
 
-window.openTab = (tabName) => { document.querySelectorAll('.tabcontent').forEach(t => t.style.display='none'); document.querySelectorAll('.tablinks').forEach(b => b.classList.remove('active')); document.getElementById(tabName).style.display='block'; document.getElementById(tabName==='Users'?'usersTab':tabName==='Withdrawals'?'withdrawTab':'announceTab').classList.add('active'); if(tabName==='Users') loadAllUsers(); if(tabName==='Withdrawals') loadAllWithdrawals(); }
-window.showAdmin = async () => { document.getElementById('dashboard').style.display = 'none'; document.getElementById('adminPanel').style.display = 'block'; openTab('Users'); }
-window.hideAdmin = () => { document.getElementById('adminPanel').style.display = 'none'; document.getElementById('dashboard').style.display = 'block'; }
-window.addPoints = async (userId) => { await updateDoc(doc(db, "users", userId), { points: increment(100) }); showNotif("+100 Points added"); loadAllUsers(); }
-window.approveWithdraw = async (withdrawId) => { await updateDoc(doc(db, "withdrawals", withdrawId), { status: "approved" }); const wDoc = await getDoc(doc(db, "withdrawals", withdrawId)); showNotif("Withdrawal Approved"); loadAllWithdrawals(); }
-window.rejectWithdraw = async (withdrawId) => { const wDoc = await getDoc(doc(db, "withdrawals", withdrawId)); const data = wDoc.data(); await updateDoc(doc(db, "users", data.userId), { points: increment(data.amount) }); await updateDoc(doc(db, "withdrawals", withdrawId), { status: "rejected" }); showNotif("Withdrawal Rejected + Points Refunded"); loadAllWithdrawals(); }
-window.openProof = (withdrawId, email, amount) => { currentProofId = withdrawId; document.getElementById('proofInfo').innerText = `Pay ${amount} MWK to ${email}`; document.getElementById('proofModal').style.display = 'flex'; }
-window.closeProof = () => { document.getElementById('proofModal').style.display = 'none'; }
-window.uploadProof = async () => { const file = document.getElementById('proofFile').files[0]; if(!file) return showNotif("Select an image first"); showNotif("Uploading proof..."); const storageRef = ref(storage, `withdraw_proofs/${currentProofId}_${Date.now()}.jpg`); const snapshot = await uploadBytes(storageRef, file); const url = await getDownloadURL(snapshot.ref); await updateDoc(doc(db, "withdrawals", currentProofId), { status: "paid", proofUrl: url }); showNotif("Marked as Paid"); closeProof(); loadAllWithdrawals(); }
-async function loadLeaderboard(){ const q = query(collection(db, "users"), orderBy("points", "desc"), limit(10)); const querySnapshot = await getDocs(q); let html = ""; let rank = 1; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let className = ""; if(rank===1) className="top1"; if(rank===2) className="top2"; if(rank===3) className="top3"; html += `<div class="leaderboard-row ${className}"><span>#${rank} ${data.email}</span><span>${data.points || 0} pts</span></div>`; rank++; }); document.getElementById("leaderboardList").innerHTML = html || "No users yet"; }
-async function loadAllUsers(){ const querySnapshot = await getDocs(collection(db, "users")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); const isAdmin = data.email === ADMIN_EMAIL? "Yes" : "No"; const balance = data.points || 0; const ref = data.referredBy? "Yes" : "No"; const l2status = data.l2Paid? `Paid ${data.l2ReferralCount||0}/20` : `Pending`; html += `<tr><td>${data.email}</td><td>${balance} pts</td><td>${ref}</td><td>${l2status}</td><td>${isAdmin}</td><td><button class="btn btn-green btn-small" onclick="addPoints('${docSnap.id}')">+100</button></td></tr>`; }); document.querySelector("#usersTable tbody").innerHTML = html || "<tr><td colspan=6>No users</td></tr>"; }
-async function loadAllWithdrawals(){ const querySnapshot = await getDocs(collection(db, "withdrawals")); let html = ""; querySnapshot.forEach((docSnap) => { const data = docSnap.data(); let statusClass = "status-pending"; if(data.status==='approved') statusClass="status-approved"; if(data.status==='rejected') statusClass="status-rejected"; if(data.status==='paid') statusClass="status-paid"; let actions = `<span class="status-badge ${statusClass}">${data.status}</span>`; if(data.status==='pending'){ actions = `<button class="btn btn-green btn-small" onclick="approveWithdraw('${docSnap.id}')">Approve</button><button class="btn btn-red btn-small" onclick="rejectWithdraw('${docSnap.id}')">Reject</button>`; } if(data.status==='approved'){ actions = `<button class="btn btn-purple btn-small" onclick="openProof('${docSnap.id}','${data.email}',${data.mwk})">Mark Paid</button>`; } if(data.proofUrl){ actions += ` <img src="${data.proofUrl}" class="proof" onclick="window.open('${data.proofUrl}')">`; } html += `<tr><td>${data.email}</td><td>${data.method}</td><td>${data.account}</td><td>${data.amount}</td><td>${data.mwk} MWK</td><td><span class="status-badge ${statusClass}">${data.status}</span></td><td>${actions}</td></tr>`; }); document.querySelector("#withdrawTable tbody").innerHTML = html || "<tr><td colspan=7>No withdrawals</td></tr>"; }
+    <script>
+        // --- 1. CONFIGURATION CONFIG & STATE CAPTURING MANAGEMENT ---
+        // Monetag dynamic direct ads redirection tracking URL collection list endpoints
+        const DIRECT_LINKS = [
+            "https://omg10.com/4/11749878", "https://omg10.com/4/11749878", "https://omg10.com/4/11749878",
+            "https://omg10.com/4/11749878", "https://omg10.com/4/11749878", "https://omg10.com/4/11749878",
+            "https://omg10.com/4/11749878", "https://omg10.com/4/11749878", "https://omg10.com/4/11749878",
+            "https://omg10.com/4/11749878", "https://omg10.com/4/11749878", "https://omg10.com/4/11749878",
+            "https://omg10.com/4/11749878", "https://omg10.com/4/11749878", "https://omg10.com/4/11749878"
+        ];
+        let linkIndex = 0;
+        
+        // Runtime Session Context State Metrics
+        let currentBalancePoints = 0;
+        let dailyAdsWatchedCount = 0;
+        const MAX_DAILY_ADS_LIMIT = 10;
+        let isUserLoggedInMock = false;
 
-onAuthStateChanged(auth, (user) => {
-  if (user) {
-    document.getElementById('auth').style.display = 'none'; document.getElementById('dashboard').style.display = 'block';
-    loadLimits(); loadAnnouncement();
-    onSnapshot(doc(db, "users", user.uid), (docSnap) => { if(docSnap.exists()){ currentUserData = docSnap.data(); document.getElementById("welcome").innerText = `Welcome, ${currentUserData.email}`; document.getElementById("points").innerText = `${currentUserData.points || 0} Points`; } });
-    if(user.email === ADMIN_EMAIL){ document.getElementById('adminBtn').style.display = 'block'; }
-  } else {
-    document.getElementById('auth').style.display = 'block'; document.getElementById('dashboard').style.display = 'none'; document.getElementById('adminPanel').style.display = 'none';
-  }
-});
-</script>
+        // --- 2. THEME AND INTERFACE INITIALIZATION CONFIG ---
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const themeBtn = document.querySelector('.theme-toggle');
+            themeBtn.innerText = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        }
+
+        function closeAnnouncement() {
+            document.getElementById('announcementBox').style.display = 'none';
+        }
+
+        function copyReferralLink() {
+            const copyText = document.getElementById("refLink");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+            alert("Referral Link copied successfully to clipboard!");
+        }
+
+        // --- 3. MODALS MANAGEMENT VISIBILITY INTERACTIVES FUNCTIONALITIES ---
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // --- 4. INTEGRATED MONETAG DIRECT LINKS ADS COUNTDOWN TASK OPERATION ENGINE ---
+        function openAdWindowInstance() {
+            window.open(DIRECT_LINKS[linkIndex], '_blank');
+            linkIndex = (linkIndex + 1) % DIRECT_LINKS.length;
+        }
+
+        function watchAdsTask(btnElement) {
+            // Guard limit check matching structural constraints configuration limits
+            if (dailyAdsWatchedCount >= MAX_DAILY_ADS_LIMIT) {
+                alert("Task Complete! You have finished your maximum daily ad viewing allotment allocation quota of 10 ads.");
+                return;
+            }
+
+            // Secure user engagement immediately, preventing system click manipulation loops
+            btnElement.disabled = true;
+            btnElement.innerText = "Wait 10s...";
+            
+            // Invoke the active structural MonetaG target url payload sequence redirection step
+            openAdWindowInstance();
+            
+            let timeRemaining = 10;
+            const timerThreadInterval = setInterval(() => {
+                timeRemaining--;
+                btnElement.innerText = "Wait " + timeRemaining + "s";
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerThreadInterval);
+                    
+                    // Restore functional buttons click configurations mapping defaults status controls
+                    btnElement.innerText = "Watch";
+                    btnElement.disabled = false;
+                    
+                    // Increment runtime indices state variables tracker models properties values
+                    dailyAdsWatchedCount++;
+                    document.getElementById('ads-counter-text').innerText = `${dailyAdsWatchedCount}/${MAX_DAILY_ADS_LIMIT} today`;
+                    
+                    // Award metrics credit point operations execution step
+                    addPoints(8);
+                }
+            }, 1000);
+        }
+
+        // --- 5. SYSTEM TRANSACTION BALANCES POINT MANIPULATION CAPABILITIES ---
+        function addPoints(pointsAmountValue) {
+            currentBalancePoints += pointsAmountValue;
+            document.getElementById('userBalance').innerText = currentBalancePoints.toLocaleString() + " Points";
+            
+            // [DEVELOPER LOG]: Insert your standard dynamic Firebase Database persistence operations right here:
+            console.log(`Firebase Realtime Update Pipeline Action: added +${pointsAmountValue} points. New profile evaluation total: ${currentBalancePoints}`);
+        }
+
+        // --- 6. USER WITHDRAW SYSTEM FORMS CAPABILITIES SIMULATION PIPELINE ---
+        function submitWithdrawForm(eventInstance) {
+            eventInstance.preventDefault();
+            if (currentBalancePoints < 5000) {
+                alert("Insolvency Error: Your total structural system account balance requires at least 5,000 credit tokens points prior to checkout verification pipeline initiation loops.");
+                return;
+            }
+            alert("Withdraw request submitted successfully! Your account balance tracking profile verification execution is now processing inside the ledger queue system.");
+            closeModal('withdrawModal');
+        }
+
+        // --- 7. ADMIN SECURITY AUTHENTICATION PORTALS PANEL CHECK ROUTINES ---
+        function accessAdminDashboard() {
+            const enteredPasscodeValue = document.getElementById('adminPassField').value;
+            // Standard baseline placeholder security key check validation matching parameters
+            if (enteredPasscodeValue === "admin123" || enteredPasscodeValue === "root") {
+                closeModal('adminAuthModal');
+                document.getElementById('adminPassField').value = ""; // flush input field values immediately
+                openModal('adminPanelDashboardModal');
+            } else {
+                alert("Security Authorization Exception: Access keys evaluation invalid. Key matching matrix structural loop verification failed.");
+            }
+        }
+
+        function updateSystemAnnouncement() {
+            const messagePayloadTextValue = document.getElementById('newAnnouncementText').value;
+            if (messagePayloadTextValue.trim() === "") return;
+            
+            const bannerElementNode = document.getElementById('announcementBox');
+            bannerElementNode.style.display = 'flex';
+            bannerElementNode.querySelector('span').innerText = "📢 " + messagePayloadTextValue;
+            alert("System status announcements notification broadcast values modified successfully.");
+        }
+
+        function clearSystemAnnouncement() {
+            document.getElementById('announcementBox').style.display = 'none';
+            document.getElementById('newAnnouncementText').value = "";
+        }
+
+        function toggleAuthMock() {
+            isUserLoggedInMock = !isUserLoggedInMock;
+            const authButtonRef = document.getElementById('authBtn');
+            if (isUserLoggedInMock) {
+                authButtonRef.innerText = "Logout";
+                authButtonRef.style.backgroundColor = "#e74c3c";
+                addPoints(50); // Add the welcome signup points instantly
+                alert("Sign Up complete! +50 welcome bonus points added to your dashboard profile tracking values initialization layer.");
+            } else {
+                authButtonRef.innerText = "Login";
+                authButtonRef.style.backgroundColor = "var(--primary-color)";
+                currentBalancePoints = 0;
+                dailyAdsWatchedCount = 0;
+                document.getElementById('userBalance').innerText = "0 Points";
+                document.getElementById('ads-counter-text').innerText = `0/${MAX_DAILY_ADS_LIMIT} today`;
+                alert("Session reset complete. Safely logged out of profile ledger pipeline.");
+            }
+        }
+
+        // --- 8. GLOBAL COUNTDOWN TIMER SYSTEM STRUCTURAL INITIALIZATION MOCK LOOP ---
+        function startSystemClockResetSimulation() {
+            let totalSecondsResetPeriodDurationValue = 24 * 60 * 60; // 24 Hours tracking format model definitions structure
+            const clockTargetSpanNode = document.getElementById('countdownTimer');
+            
+            setInterval(() => {
+                totalSecondsResetPeriodDurationValue--;
+                if (totalSecondsResetPeriodDurationValue <= 0) {
+                    totalSecondsResetPeriodDurationValue = 24 * 60 * 60; // loop reset automation parameters
+                }
+                const trackingHoursRemainingValue = Math.floor(totalSecondsResetPeriodDurationValue / 3600);
+                const trackingMinutesRemainingValue = Math.floor((totalSecondsResetPeriodDurationValue % 3600) / 60);
+                const trackingSecondsRemainingValue = totalSecondsResetPeriodDurationValue % 60;
+                
+                clockTargetSpanNode.innerText = 
+                    String(trackingHoursRemainingValue).padStart(2, '0') + ":" + 
+                    String(trackingMinutesRemainingValue).padStart(2, '0') + ":" + 
+                    String(trackingSecondsRemainingValue).padStart(2, '0');
+            }, 1000);
+        }
+
+        // Run baseline simulation loop threads upon file rendering completions metrics execution window events hooks
+        window.onload = function() {
+            startSystemClockResetSimulation();
+        };
+    </script>
 </body>
 </html>

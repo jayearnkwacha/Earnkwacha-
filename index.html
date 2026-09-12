@@ -494,7 +494,7 @@
             <div class="task-row">
                 <div class="task-info">
                     <h4>Watch Ads - 8 Points</h4>
-                    <p id="ads-counter-text">0/10 today</p>
+                    <p id="ads-counter-text">0/15 today</p>
                 </div>
                 <button class="btn-task" id="watchAdsBtn" onclick="watchAdsTask(this)">Watch</button>
             </div>
@@ -512,9 +512,9 @@
             <div class="task-row">
                 <div class="task-info">
                     <h4>Spin & Win - 0-5 Points</h4>
-                    <p>0/1 today</p>
+                    <p id="spin-counter-text">0/1 today</p>
                 </div>
-                <button class="btn-task" onclick="alert('Opening Lucky Spin Panel...')">Spin</button>
+                <button class="btn-task" id="spinBtn" onclick="spinAndWinTask(this)">Spin</button>
             </div>
 
             <!-- Quiz Games Module Section Elements Row Block -->
@@ -754,10 +754,63 @@
         let linkIndex = 0;
         
         // Runtime Session Context State Metrics
+        const STORAGE_KEY = "earnKwaChaState_v4";
         let currentBalancePoints = 0;
         let dailyAdsWatchedCount = 0;
-        const MAX_DAILY_ADS_LIMIT = 10;
+        let dailySpinUsed = false;
+        let stateDate = new Date().toISOString().slice(0, 10);
+        const MAX_DAILY_ADS_LIMIT = 15;
+        const SPIN_REWARDS = [5, 0, 3, 0, 1, 0, 2];
         let isUserLoggedInMock = false;
+
+        function loadState() {
+            try {
+                const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+                if (saved) {
+                    currentBalancePoints = Number(saved.balance) || 0;
+                    stateDate = saved.date || stateDate;
+                    if (stateDate !== new Date().toISOString().slice(0, 10)) {
+                        dailyAdsWatchedCount = 0;
+                        dailySpinUsed = false;
+                        stateDate = new Date().toISOString().slice(0, 10);
+                    } else {
+                        dailyAdsWatchedCount = Number(saved.adsWatched) || 0;
+                        dailySpinUsed = !!saved.spinUsed;
+                    }
+                }
+            } catch (e) {
+                console.warn("Could not load saved account state.", e);
+            }
+            updateBalanceUI();
+            updateTaskUI();
+            saveState();
+        }
+
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify({
+                balance: currentBalancePoints,
+                adsWatched: dailyAdsWatchedCount,
+                spinUsed: dailySpinUsed,
+                date: stateDate
+            }));
+        }
+
+        function updateBalanceUI() {
+            document.getElementById('userBalance').innerText =
+                currentBalancePoints.toLocaleString() + " Points";
+        }
+
+        function updateTaskUI() {
+            document.getElementById('ads-counter-text').innerText =
+                `${dailyAdsWatchedCount}/${MAX_DAILY_ADS_LIMIT} today`;
+            const spinCounter = document.getElementById('spin-counter-text');
+            const spinBtn = document.getElementById('spinBtn');
+            if (spinCounter) spinCounter.innerText = dailySpinUsed ? "1/1 today" : "0/1 today";
+            if (spinBtn) {
+                spinBtn.disabled = dailySpinUsed;
+                spinBtn.innerText = dailySpinUsed ? "Done" : "Spin";
+            }
+        }
 
         // --- 2. THEME AND INTERFACE INITIALIZATION CONFIG ---
         function toggleTheme() {
@@ -796,7 +849,7 @@
         function watchAdsTask(btnElement) {
             // Guard limit check matching structural constraints configuration limits
             if (dailyAdsWatchedCount >= MAX_DAILY_ADS_LIMIT) {
-                alert("Task Complete! You have finished your maximum daily ad viewing allotment allocation quota of 10 ads.");
+                alert("Task Complete! You have finished your maximum daily ad viewing allotment allocation quota of 15 ads.");
                 return;
             }
 
@@ -838,18 +891,61 @@
             console.log(`Firebase Realtime Update Pipeline Action: added +${pointsAmountValue} points. New profile evaluation total: ${currentBalancePoints}`);
         }
 
-        // --- 6. USER WITHDRAW SYSTEM FORMS CAPABILITIES SIMULATION PIPELINE ---
-        function submitWithdrawForm(eventInstance) {
-            eventInstance.preventDefault();
-            if (currentBalancePoints < 5000) {
-                alert("Insolvency Error: Your total structural system account balance requires at least 5,000 credit tokens points prior to checkout verification pipeline initiation loops.");
+
+        // --- 6. REAL LUCKY SPIN ---
+        function spinAndWinTask(btnElement) {
+            if (dailySpinUsed) {
+                alert("You have already used your Spin & Win for today.");
                 return;
             }
-            alert("Withdraw request submitted successfully! Your account balance tracking profile verification execution is now processing inside the ledger queue system.");
+
+            dailySpinUsed = true;
+            updateTaskUI();
+            saveState();
+
+            btnElement.disabled = true;
+            btnElement.innerText = "Spinning...";
+
+            // The wheel has exactly these possible point outcomes:
+            // 5, 0, 3, 0, 1, 0, 2
+            const reward = SPIN_REWARDS[Math.floor(Math.random() * SPIN_REWARDS.length)];
+
+            setTimeout(() => {
+                btnElement.innerText = "Done";
+                addPoints(reward);
+                alert(`🎉 You won ${reward} Points! Your balance has been updated automatically.`);
+            }, 1200);
+        }
+
+        // --- 7. USER WITHDRAW SYSTEM FORMS CAPABILITIES SIMULATION PIPELINE ---
+        function submitWithdrawForm(eventInstance) {
+            eventInstance.preventDefault();
+
+            const amountInput = eventInstance.target.querySelector('input[type="number"]');
+            const requestedPoints = Number(amountInput ? amountInput.value : 0);
+
+            if (!Number.isFinite(requestedPoints) || requestedPoints < 5000) {
+                alert("Minimum withdrawal is 5,000 Points.");
+                return;
+            }
+
+            if (requestedPoints > currentBalancePoints) {
+                alert(`Insufficient balance. You have ${currentBalancePoints.toLocaleString()} Points available.`);
+                return;
+            }
+
+            // Deduct the requested points immediately and persist the new balance.
+            addPoints(-requestedPoints);
+
+            alert(
+                `Withdrawal request submitted for ${requestedPoints.toLocaleString()} Points.\n` +
+                `Your new balance is ${currentBalancePoints.toLocaleString()} Points.`
+            );
+            eventInstance.target.reset();
             closeModal('withdrawModal');
         }
 
-        // --- 7. ADMIN SECURITY AUTHENTICATION PORTALS PANEL CHECK ROUTINES ---
+        // --- 8. ADMIN SECURITY AUTHENTICATION PORTALS PANEL CHECK ROUTINES ---
         function accessAdminDashboard() {
             const enteredPasscodeValue = document.getElementById('adminPassField').value;
             // Standard baseline placeholder security key check validation matching parameters
@@ -939,18 +1035,29 @@
                 authButtonRef.style.backgroundColor = "var(--primary-color)";
                 currentBalancePoints = 0;
                 dailyAdsWatchedCount = 0;
-                document.getElementById('userBalance').innerText = "0 Points";
-                document.getElementById('ads-counter-text').innerText = `0/${MAX_DAILY_ADS_LIMIT} today`;
+                dailySpinUsed = false;
+                updateBalanceUI();
+                updateTaskUI();
+                saveState();
                 alert("Session reset complete. Safely logged out of profile ledger pipeline.");
             }
         }
 
-        // --- 8. GLOBAL COUNTDOWN TIMER SYSTEM STRUCTURAL INITIALIZATION MOCK LOOP ---
+        // --- 9. GLOBAL COUNTDOWN TIMER SYSTEM STRUCTURAL INITIALIZATION MOCK LOOP ---
         function startSystemClockResetSimulation() {
             let totalSecondsResetPeriodDurationValue = 24 * 60 * 60; // 24 Hours tracking format model definitions structure
             const clockTargetSpanNode = document.getElementById('countdownTimer');
             
             setInterval(() => {
+                const today = new Date().toISOString().slice(0, 10);
+                if (today !== stateDate) {
+                    stateDate = today;
+                    dailyAdsWatchedCount = 0;
+                    dailySpinUsed = false;
+                    updateTaskUI();
+                    saveState();
+                }
+
                 totalSecondsResetPeriodDurationValue--;
                 if (totalSecondsResetPeriodDurationValue <= 0) {
                     totalSecondsResetPeriodDurationValue = 24 * 60 * 60; // loop reset automation parameters
@@ -968,6 +1075,7 @@
 
         // Run baseline simulation loop threads upon file rendering completions metrics execution window events hooks
         window.onload = function() {
+            loadState();
             startSystemClockResetSimulation();
         };
     </script>

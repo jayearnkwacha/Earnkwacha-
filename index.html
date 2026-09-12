@@ -229,6 +229,156 @@
             cursor: not-allowed;
         }
 
+
+        /* Lucky Wheel - reference-style Spin & Win */
+        .wheel-modal-box {
+            background: var(--card-bg);
+            color: var(--text-color);
+            padding: 1.25rem;
+            border-radius: 18px;
+            width: min(94vw, 520px);
+            text-align: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,.2);
+        }
+        .wheel-title {
+            margin-bottom: .35rem;
+            font-size: 1.45rem;
+            font-weight: 800;
+        }
+        .wheel-subtitle {
+            color: #7f8c8d;
+            font-size: .9rem;
+            margin-bottom: .9rem;
+        }
+        .wheel-wrap {
+            position: relative;
+            width: min(82vw, 390px);
+            aspect-ratio: 1;
+            margin: .4rem auto 1rem;
+        }
+        .wheel-pointer {
+            position: absolute;
+            z-index: 5;
+            top: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 22px solid transparent;
+            border-right: 22px solid transparent;
+            border-top: 42px solid #d49a20;
+            filter: drop-shadow(0 2px 2px rgba(0,0,0,.3));
+        }
+        .wheel-pointer::before {
+            content: "";
+            position: absolute;
+            left: -15px;
+            top: -38px;
+            width: 30px;
+            height: 9px;
+            border-radius: 4px;
+            background: linear-gradient(#ffe88a,#c4860e);
+        }
+        .lucky-wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 16px solid #1756d1;
+            box-shadow: inset 0 0 0 4px #ffe75b, 0 10px 24px rgba(0,0,0,.22);
+            position: relative;
+            overflow: hidden;
+            transition: transform 4s cubic-bezier(.12,.72,.13,1);
+            background: conic-gradient(
+                from -25.714deg,
+                #2fa9e9 0deg 51.428deg,
+                #fff 51.428deg 102.856deg,
+                #2fa9e9 102.856deg 154.284deg,
+                #fff 154.284deg 205.712deg,
+                #2fa9e9 205.712deg 257.14deg,
+                #fff 257.14deg 308.568deg,
+                #2fa9e9 308.568deg 360deg
+            );
+        }
+        .wheel-labels {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+        .wheel-label {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 42%;
+            transform-origin: 0 0;
+            font-weight: 900;
+            font-size: clamp(1.1rem, 4.8vw, 1.65rem);
+            color: #1768d7;
+            text-shadow: 0 1px 1px rgba(255,255,255,.7);
+        }
+        .wheel-label span {
+            display: block;
+            width: 100%;
+            text-align: center;
+            transform: translateY(-50%) rotate(90deg);
+        }
+        .wheel-label:nth-child(2n) { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+        .wheel-center {
+            position: absolute;
+            z-index: 4;
+            width: 54px;
+            height: 54px;
+            border-radius: 50%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%,-50%);
+            background: #1756d1;
+            border: 4px solid #2f67dc;
+            box-shadow: 0 3px 7px rgba(0,0,0,.25);
+        }
+        .wheel-spin-btn {
+            width: min(100%, 280px);
+            border: 0;
+            border-radius: 12px;
+            padding: 13px 18px;
+            background: linear-gradient(135deg,#087cf0,#1756d1);
+            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .wheel-spin-btn:disabled { opacity: .55; cursor: not-allowed; }
+        .wheel-result {
+            min-height: 24px;
+            margin-top: .75rem;
+            font-weight: 800;
+        }
+        .proof-thumb {
+            display: block;
+            width: 92px;
+            height: 64px;
+            object-fit: cover;
+            border-radius: 7px;
+            border: 1px solid #ddd;
+            margin-top: 6px;
+        }
+        .admin-action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .admin-small-btn {
+            border: 0;
+            border-radius: 7px;
+            padding: 8px 10px;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .admin-approve { background: #28a745; }
+        .admin-cancel { background: #e74c3c; }
+        .admin-proof { background: #6c5ce7; }
+        .proof-input { max-width: 230px; font-size: .8rem; }
+
         /* Overlay Popups (Modals) System */
         .modal-overlay {
             position: fixed;
@@ -514,7 +664,7 @@
                     <h4>Spin & Win - 0-5 Points</h4>
                     <p id="spin-counter-text">0/1 today</p>
                 </div>
-                <button class="btn-task" id="spinBtn" onclick="spinAndWinTask(this)">Spin</button>
+                <button class="btn-task" id="spinBtn" onclick="openSpinWheel()">Spin</button>
             </div>
 
             <!-- Quiz Games Module Section Elements Row Block -->
@@ -531,6 +681,32 @@
             <p>Advertisement — Please wait...</p>
         </div>
     </main>
+
+
+    <!-- Spin & Win Wheel -->
+    <div class="modal-overlay" id="spinWheelModal">
+        <div class="wheel-modal-box">
+            <div class="wheel-title">🎡 Spin & Win</div>
+            <div class="wheel-subtitle">One free spin every day • Rewards: 5, 0, 2, 4, 1, 3</div>
+            <div class="wheel-wrap">
+                <div class="wheel-pointer"></div>
+                <div class="lucky-wheel" id="luckyWheel">
+                    <div class="wheel-labels" aria-hidden="true">
+                        <div class="wheel-label" style="transform:rotate(0deg) translateX(-50%);"><span>5</span></div>
+                        <div class="wheel-label" style="transform:rotate(60deg) translateX(-50%);"><span>0</span></div>
+                        <div class="wheel-label" style="transform:rotate(120deg) translateX(-50%);"><span>2</span></div>
+                        <div class="wheel-label" style="transform:rotate(180deg) translateX(-50%);"><span>4</span></div>
+                        <div class="wheel-label" style="transform:rotate(240deg) translateX(-50%);"><span>1</span></div>
+                        <div class="wheel-label" style="transform:rotate(300deg) translateX(-50%);"><span>3</span></div>
+                    </div>
+                    <div class="wheel-center"></div>
+                </div>
+            </div>
+            <button class="wheel-spin-btn" id="realSpinButton" onclick="spinWheel()">SPIN NOW 🎯</button>
+            <div class="wheel-result" id="wheelResult"></div>
+            <button class="modal-close-btn" onclick="closeModal('spinWheelModal')">Close</button>
+        </div>
+    </div>
 
     <div class="modal-overlay" id="withdrawModal">
         <div class="modal-box">
@@ -574,12 +750,7 @@
                     </tr>
                 </thead>
                 <tbody id="historyTableBody">
-                    <tr>
-                        <td>2026-03-09</td>
-                        <td>5,500 MWK</td>
-                        <td>Airtel Money</td>
-                        <td style="color: green; font-weight: bold;">Paid</td>
-                    </tr>
+                    <tr><td colspan="4" style="color:#7f8c8d;text-align:center;">No withdrawal requests yet.</td></tr>
                 </tbody>
             </table>
             <button class="modal-close-btn" onclick="closeModal('historyModal')">Close</button>
@@ -686,7 +857,7 @@
                         </tbody>
                     </table>
                 </div>
-                <p class="admin-mobile-note">Swipe the table left/right on small screens to see all columns.</p>
+                <p class="admin-mobile-note">Approve or cancel pending payments. Attach the payment screenshot after sending money; it will appear in the user's My Withdrawals history.</p>
             </div>
 
             <div id="adminWithdrawalsPanel" class="admin-withdraw-panel">
@@ -700,23 +871,12 @@
                                 <th>Method</th>
                                 <th>Points</th>
                                 <th>Status</th>
+                                <th>Proof Screenshot</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
                         <tbody id="adminWithdrawalsTableBody">
-                            <tr>
-                                <td>user77@gmail.com</td>
-                                <td>TNM Mpamba</td>
-                                <td>6000 pts</td>
-                                <td>Pending</td>
-                                <td>
-                                    <button class="admin-add-btn"
-                                            style="background:#087cf0;"
-                                            onclick="markWithdrawalPaid(this)">
-                                        Mark Paid
-                                    </button>
-                                </td>
-                            </tr>
+                            <tr><td colspan="6" style="text-align:center;color:#666;">No withdrawal requests.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -754,14 +914,17 @@
         let linkIndex = 0;
         
         // Runtime Session Context State Metrics
-        const STORAGE_KEY = "earnKwaChaState_v4";
+        const STORAGE_KEY = "earnKwaChaState_v5";
+        const WITHDRAWALS_KEY = "earnKwaChaWithdrawals_v1";
         let currentBalancePoints = 0;
         let dailyAdsWatchedCount = 0;
         let dailySpinUsed = false;
         let stateDate = new Date().toISOString().slice(0, 10);
         const MAX_DAILY_ADS_LIMIT = 15;
-        const SPIN_REWARDS = [5, 0, 3, 0, 1, 0, 2];
+        const SPIN_REWARDS = [5, 0, 2, 4, 1, 3];
         let isUserLoggedInMock = false;
+        let wheelRotation = 0;
+        let selectedWheelReward = null;
 
         function loadState() {
             try {
@@ -784,6 +947,8 @@
             updateBalanceUI();
             updateTaskUI();
             saveState();
+            renderUserHistory();
+            renderAdminWithdrawals();
         }
 
         function saveState() {
@@ -793,6 +958,130 @@
                 spinUsed: dailySpinUsed,
                 date: stateDate
             }));
+        }
+
+
+        function getWithdrawals() {
+            try { return JSON.parse(localStorage.getItem(WITHDRAWALS_KEY) || "[]"); }
+            catch (e) { return []; }
+        }
+
+        function saveWithdrawals(list) {
+            localStorage.setItem(WITHDRAWALS_KEY, JSON.stringify(list));
+        }
+
+        function renderUserHistory() {
+            const body = document.getElementById("historyTableBody");
+            if (!body) return;
+            const list = getWithdrawals();
+            if (!list.length) {
+                body.innerHTML = '<tr><td colspan="4" style="color:#7f8c8d;text-align:center;">No withdrawal requests yet.</td></tr>';
+                return;
+            }
+            body.innerHTML = list.slice().reverse().map(w => {
+                const statusColor = w.status === "Paid" ? "#28a745" : (w.status === "Cancelled" ? "#e74c3c" : "#f39c12");
+                const proof = w.proof ? `<a href="${w.proof}" target="_blank" rel="noopener"><img class="proof-thumb" src="${w.proof}" alt="Payment proof"></a>` : "";
+                return `<tr>
+                    <td>${escapeHtml(w.date)}</td>
+                    <td>${Number(w.points).toLocaleString()} MWK</td>
+                    <td>${escapeHtml(w.method)}</td>
+                    <td style="color:${statusColor};font-weight:700;">${escapeHtml(w.status)}${proof}</td>
+                </tr>`;
+            }).join("");
+        }
+
+        function escapeHtml(value) {
+            return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+        }
+
+        function renderAdminWithdrawals() {
+            const body = document.getElementById("adminWithdrawalsTableBody");
+            if (!body) return;
+            const list = getWithdrawals();
+            if (!list.length) {
+                body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#666;">No withdrawal requests.</td></tr>';
+                return;
+            }
+            body.innerHTML = list.slice().reverse().map(w => {
+                const proof = w.proof
+                    ? `<a href="${w.proof}" target="_blank" rel="noopener"><img class="proof-thumb" src="${w.proof}" alt="Proof"></a>`
+                    : `<input class="proof-input" type="file" accept="image/*" onchange="attachPaymentProof('${w.id}', this)">`;
+                let actions = "";
+                if (w.status === "Pending") {
+                    actions = `<div class="admin-action-row">
+                        <button class="admin-small-btn admin-approve" onclick="approveWithdrawal('${w.id}')">Approve / Paid</button>
+                        <button class="admin-small-btn admin-cancel" onclick="cancelWithdrawal('${w.id}')">Cancel</button>
+                    </div>`;
+                } else if (w.status === "Paid") {
+                    actions = `<span style="color:#28a745;font-weight:700;">Payment completed</span>`;
+                } else {
+                    actions = `<span style="color:#e74c3c;font-weight:700;">Cancelled</span>`;
+                }
+                return `<tr>
+                    <td>${escapeHtml(w.email || "Current User")}</td>
+                    <td>${escapeHtml(w.method)}</td>
+                    <td>${Number(w.points).toLocaleString()} pts</td>
+                    <td style="font-weight:700;">${escapeHtml(w.status)}</td>
+                    <td>${proof}</td>
+                    <td>${actions}</td>
+                </tr>`;
+            }).join("");
+        }
+
+        function approveWithdrawal(id) {
+            const list = getWithdrawals();
+            const w = list.find(x => x.id === id);
+            if (!w) return;
+            if (w.status !== "Pending") return;
+            w.status = "Paid";
+            w.paidAt = new Date().toLocaleString();
+            saveWithdrawals(list);
+            renderAdminWithdrawals();
+            renderUserHistory();
+            alert("Payment approved. If a proof screenshot is attached, the user can now see it in My Withdrawals.");
+        }
+
+        function cancelWithdrawal(id) {
+            const list = getWithdrawals();
+            const w = list.find(x => x.id === id);
+            if (!w || w.status !== "Pending") return;
+            w.status = "Cancelled";
+            // Return the points when an admin cancels a pending withdrawal.
+            currentBalancePoints += Number(w.points) || 0;
+            updateBalanceUI();
+            saveState();
+            saveWithdrawals(list);
+            renderAdminWithdrawals();
+            renderUserHistory();
+            alert("Withdrawal cancelled and the points have been returned to the user's balance.");
+        }
+
+        function attachPaymentProof(id, input) {
+            const file = input && input.files ? input.files[0] : null;
+            if (!file) return;
+            if (!file.type.startsWith("image/")) {
+                alert("Please choose an image screenshot.");
+                input.value = "";
+                return;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                alert("Please use a screenshot smaller than 2 MB.");
+                input.value = "";
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = function() {
+                const list = getWithdrawals();
+                const w = list.find(x => x.id === id);
+                if (!w) return;
+                w.proof = reader.result;
+                w.proofName = file.name;
+                saveWithdrawals(list);
+                renderAdminWithdrawals();
+                renderUserHistory();
+                alert("Payment screenshot attached. The user can view it in My Withdrawals.");
+            };
+            reader.readAsDataURL(file);
         }
 
         function updateBalanceUI() {
@@ -892,29 +1181,53 @@
         }
 
 
-        // --- 6. REAL LUCKY SPIN ---
-        function spinAndWinTask(btnElement) {
+        // --- 6. REAL LUCKY SPIN WHEEL ---
+        function openSpinWheel() {
             if (dailySpinUsed) {
                 alert("You have already used your Spin & Win for today.");
                 return;
             }
+            selectedWheelReward = null;
+            document.getElementById("wheelResult").innerText = "";
+            document.getElementById("realSpinButton").disabled = false;
+            openModal("spinWheelModal");
+        }
 
-            dailySpinUsed = true;
-            updateTaskUI();
-            saveState();
+        function spinWheel() {
+            if (dailySpinUsed) return;
 
-            btnElement.disabled = true;
-            btnElement.innerText = "Spinning...";
+            const spinButton = document.getElementById("realSpinButton");
+            const wheel = document.getElementById("luckyWheel");
+            const result = document.getElementById("wheelResult");
+            spinButton.disabled = true;
+            result.innerText = "Spinning...";
 
-            // The wheel has exactly these possible point outcomes:
-            // 5, 0, 3, 0, 1, 0, 2
-            const reward = SPIN_REWARDS[Math.floor(Math.random() * SPIN_REWARDS.length)];
+            const rewards = SPIN_REWARDS;
+            const index = Math.floor(Math.random() * rewards.length);
+            selectedWheelReward = rewards[index];
+
+            // Six equal sectors. The pointer is at 12 o'clock.
+            // Sector centers are 30, 90, 150, 210, 270, 330 degrees
+            // in the wheel's unrotated coordinate system.
+            const sectorCenter = 30 + index * 60;
+            const targetAngle = 360 - sectorCenter;
+            const extraTurns = 6 + Math.floor(Math.random() * 3);
+            wheelRotation += extraTurns * 360 + targetAngle;
+            wheel.style.transform = `rotate(${wheelRotation}deg)`;
 
             setTimeout(() => {
-                btnElement.innerText = "Done";
-                addPoints(reward);
-                alert(`🎉 You won ${reward} Points! Your balance has been updated automatically.`);
-            }, 1200);
+                dailySpinUsed = true;
+                addPoints(selectedWheelReward);
+                saveState();
+                updateTaskUI();
+                result.innerText = `🎉 You won ${selectedWheelReward} Points!`;
+                alert(`🎉 You won ${selectedWheelReward} Points! Your balance has been updated automatically.`);
+            }, 4100);
+        }
+
+        // Backwards-compatible handler for any old button reference.
+        function spinAndWinTask(btnElement) {
+            openSpinWheel();
         }
 
         // --- 7. USER WITHDRAW SYSTEM FORMS CAPABILITIES SIMULATION PIPELINE ---
@@ -953,6 +1266,8 @@
                 closeModal('adminAuthModal');
                 document.getElementById('adminPassField').value = ""; // flush input field values immediately
                 showAdminTab('users');
+                renderAdminWithdrawals();
+                renderUserHistory();
                 openModal('adminPanelDashboardModal');
             } else {
                 alert("Security Authorization Exception: Access keys evaluation invalid. Key matching matrix structural loop verification failed.");
@@ -1077,6 +1392,8 @@
         window.onload = function() {
             loadState();
             startSystemClockResetSimulation();
+            renderUserHistory();
+            renderAdminWithdrawals();
         };
     </script>
 </body>
